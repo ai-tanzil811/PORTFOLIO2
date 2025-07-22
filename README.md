@@ -1,7 +1,7 @@
 # Cyberpunk Portfolio | Ashraful Islam Tanzil
 
 <p align="center">
-  <img src="screenshots.jpg" alt="Portfolio Preview" width="800">
+  <img src="screenshot.jpg" alt="Portfolio Preview" width="800">
 </p>
 
 A futuristic, cyberpunk-themed personal portfolio website with animated circuit patterns and a sleek green UI.
