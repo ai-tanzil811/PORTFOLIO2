@@ -655,6 +655,28 @@ p {
   object-fit: contain;
 }
 
+/* Improved Background Image Handling */
+.banner-section-loop {
+  position: relative;
+  /* Other properties remain the same */
+}
+
+.banner-section-loop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('background.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  z-index: -1;
+  filter: brightness(0.7) contrast(1.2);
+}
+
 /* Animations */
 @keyframes line-dash {
   from { stroke-dashoffset: 0; }
@@ -721,9 +743,239 @@ p {
   .banner-section-loop .view-contract-btn-main a { font-size: 14px; line-height: 18px; }
 }
 
+@media only screen and (max-width: 1200px) {
+  /* Adjust padding and margins for better space usage */
+  .custom-container { padding: 0 20px; }
+  
+  h1 { 
+    font-size: 60px;
+    line-height: 1.1;
+  }
+  
+  .header-menu ul { gap: 40px; }
+}
+
+@media only screen and (max-width: 991px) {
+  /* Tablet Layout */
+  h1 { 
+    font-size: 50px;
+    line-height: 1.1;
+  }
+  
+  .banner-section-main .banner-section-loop {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    padding-top: 120px;
+    gap: 10px;
+  }
+  
+  .banner-left-vertical-main {
+    width: 100%;
+    flex-direction: row;
+    margin-top: 0;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .banner-left-vertical-main h6 {
+    writing-mode: horizontal-tb;
+    letter-spacing: 5px;
+  }
+  
+  .banner-main-img {
+    width: 70%;
+    align-self: center;
+    margin-bottom: 30px;
+  }
+  
+  .banner-content-main {
+    width: 90%;
+    padding-top: 0;
+    text-align: center;
+  }
+  
+  .controller-box-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .controller-box-img {
+    margin-bottom: 15px;
+  }
+  
+  .banner-section-loop .view-contract-btn-main {
+    margin: 0 auto;
+  }
+}
+
 @media only screen and (max-width: 768px) {
-  .modal-box { width: 95%; }
-  .tech-grid, .stats-grid { grid-template-columns: 1fr; }
-  .modal-header h2 { font-size: 20px; } /* Reduced from 22px */
-  .header-menu ul li a { font-size: 18px; } /* Reduced from 20px */
+  /* Mobile Layout */
+  .header-section-inner {
+    position: relative;
+  }
+  
+  .header-logo {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .header-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(8, 22, 15, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    padding-top: 100px;
+  }
+  
+  .header-menu.active {
+    transform: translateX(0);
+  }
+  
+  .header-menu ul {
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+  }
+  
+  .header-menu ul li a {
+    font-size: 20px;
+  }
+  
+  .header-menu ul li a:after {
+    display: none;
+  }
+  
+  /* Mobile Menu Toggle Button */
+  .mobile-menu-toggle {
+    display: block;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    z-index: 1001;
+    cursor: pointer;
+  }
+  
+  .mobile-menu-toggle span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: var(--cyber-green);
+    border-radius: 3px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: .25s ease-in-out;
+  }
+  
+  .mobile-menu-toggle span:nth-child(1) {
+    top: 10px;
+  }
+  
+  .mobile-menu-toggle span:nth-child(2), .mobile-menu-toggle span:nth-child(3) {
+    top: 20px;
+  }
+  
+  .mobile-menu-toggle span:nth-child(4) {
+    top: 30px;
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(1) {
+    top: 18px;
+    width: 0%;
+    left: 50%;
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(2) {
+    transform: rotate(45deg);
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(4) {
+    top: 18px;
+    width: 0%;
+    left: 50%;
+  }
+  
+  /* Additional mobile adjustments */
+  h1 {
+    font-size: 40px;
+  }
+  
+  h5 {
+    font-size: 14px;
+    letter-spacing: 5px;
+  }
+  
+  .banner-main-img {
+    width: 85%;
+  }
+  
+  .controller-icons-main {
+    flex-wrap: wrap;
+  }
+  
+  .controller-icons-inner {
+    min-width: 40%;
+  }
+  
+  /* Modal adjustments for mobile */
+  .modal-content {
+    padding: 20px 15px;
+  }
+  
+  .cyber-panel {
+    padding: 15px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  h1 {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+  
+  .banner-main-img {
+    width: 100%;
+  }
+  
+  .controller-icons-main {
+    gap: 10px;
+  }
+  
+  .controller-icons-inner {
+    min-width: 45%;
+  }
+  
+  .controller-img i {
+    font-size: 2rem;
+  }
+  
+  .controller-img {
+    padding: 10px;
+  }
+  
+  .banner-section-loop .view-contract-btn-main {
+    width: 200px;
+    height: 50px;
+  }
+  
+  .banner-section-loop .view-contract-btn-main a {
+    font-size: 14px;
+  }
 }
