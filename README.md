@@ -84,13 +84,11 @@ The portfolio is designed to work on all screen sizes:
 - [Parallax.js](https://matthew.wagerfield.com/parallax/) - For depth effects
 - [jQuery](https://jquery.com/) - For DOM manipulation
 
-## 📝 License
 
-This project is available for personal use and modification. Please provide attribution when using substantial portions of the code.
 
 ## 🙏 Credits
 
-- Original design concept by Ashraful Islam Tanzil
+- COPIED design concept from Internet
 - Animation techniques adapted from various open-source projects
 - Icon library from Font Awesome
 
