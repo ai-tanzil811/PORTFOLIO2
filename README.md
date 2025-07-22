@@ -1,14 +1,14 @@
-# Cyberpunk Portfolio | Ashraful Islam Tanzil
+#  Portfolio | Ashraful Islam Tanzil
 
 <p align="center">
   <img src="screenshot.jpg" alt="Portfolio Preview" width="800">
 </p>
 
-A futuristic, cyberpunk-themed personal portfolio website with animated circuit patterns and a sleek green UI.
+A futuristic, portfolio website with animated circuit patterns and a sleek green UI.
 
 ## ⚡️ Features
 
-- **Cyberpunk Design**: Sleek, modern UI with animated circuit patterns and futuristic elements
+- **Design**: Sleek, modern UI with animated circuit patterns and futuristic elements
 - **Interactive UI**: Custom cursor, hover effects, and smooth animations
 - **Responsive Layout**: Fully responsive design that works on all devices
 - **Tech Stack Showcase**: Modal display of programming languages, frameworks, and tools
