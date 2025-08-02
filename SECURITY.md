@@ -1,8 +1,8 @@
 # 🔒 Security Policy
 
-## Cyberpunk Portfolio Security Overview
+##Portfolio Security Overview
 
-This document outlines security considerations for the Cyberpunk Portfolio website. While this is primarily a static front-end application, security best practices are still important to maintain.
+This document outlines security considerations for the Portfolio website. While this is primarily a static front-end application, security best practices are still important to maintain.
 
 ## 🛡️ Security Measures Implemented
 
