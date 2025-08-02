@@ -5,9 +5,18 @@ jQuery(document).ready(function () {
     // Initialize custom cursor
     initCustomCursor();
     
+    // Initialize smooth scroll functionality
+    initSmoothScroll();
+    
+    // Initialize scroll effects
+    initScrollEffects();
+    
     // Add animation to main image
     setTimeout(function() {
-        document.querySelector(".main-img").classList.add("character-animation");
+        const mainImg = document.querySelector(".main-img");
+        if (mainImg) {
+            mainImg.classList.add("character-animation");
+        }
     }, 500);
     
     // Init modal functionality
@@ -23,7 +32,7 @@ jQuery(document).ready(function () {
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const headerMenu = document.querySelector('.header-menu');
     
-    if (mobileMenuToggle) {
+    if (mobileMenuToggle && headerMenu) {
         mobileMenuToggle.addEventListener('click', function() {
             this.classList.toggle('active');
             headerMenu.classList.toggle('active');
@@ -49,6 +58,11 @@ jQuery(document).ready(function () {
 });
 
 function initParallax() {
+    // Check if Parallax constructor is available
+    if (typeof Parallax === 'undefined') {
+        return;
+    }
+    
     var scene = document.querySelectorAll(".scene");
     if (scene.length > 0) {
         scene.forEach(function(el) {
@@ -82,7 +96,7 @@ function initCustomCursor() {
         mouseY = e.clientY;
     });
     
-    if (cursorScale) {
+    if (cursorScale.length > 0 && cursor) {
         cursorScale.forEach(link => {
             link.addEventListener('mousemove', () => {
                 cursor.classList.add('grow');
@@ -127,12 +141,14 @@ function initScrollEffects() {
         const scrollPosition = window.scrollY;
         const header = document.querySelector('.header-section-main');
         
-        if (scrollPosition > 100) {
-            header.style.background = 'rgba(13, 2, 33, 0.95)';
-            header.style.boxShadow = '0 0 20px rgba(0, 255, 65, 0.5)';
-        } else {
-            header.style.background = 'rgba(13, 2, 33, 0.8)';
-            header.style.boxShadow = '0 0 20px rgba(0, 255, 65, 0.3)';
+        if (header) {
+            if (scrollPosition > 100) {
+                header.style.background = 'rgba(13, 2, 33, 0.95)';
+                header.style.boxShadow = '0 0 20px rgba(0, 255, 65, 0.5)';
+            } else {
+                header.style.background = 'rgba(13, 2, 33, 0.8)';
+                header.style.boxShadow = '0 0 20px rgba(0, 255, 65, 0.3)';
+            }
         }
         
         // Check which section is visible and highlight nav item
@@ -197,7 +213,10 @@ function initModals() {
 function openModal(modal) {
     if (modal) {
         // Reset scroll position
-        modal.querySelector('.modal-content').scrollTop = 0;
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.scrollTop = 0;
+        }
         
         // Add active class to show modal with animation
         modal.classList.add('active');
@@ -217,10 +236,24 @@ function closeModal(modal) {
     }
 }
 
+// Debounce utility function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Enhanced resize handler for better responsiveness
 function handleResize() {
-    // Reinitialize parallax on resize
-    setTimeout(initParallax, 100);
+    // Debounced parallax re-initialization
+    const debouncedParallaxInit = debounce(initParallax, 250);
+    debouncedParallaxInit();
     
     // Reset mobile menu state on window resize (especially orientation change)
     if (window.innerWidth > 768) {
