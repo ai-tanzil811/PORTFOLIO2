@@ -40,6 +40,7 @@ A futuristic, portfolio website with animated circuit patterns and a sleek green
    # OR using Node.js with http-server
    npx http-server
    ```
+3. Just download the whole file and run "index.html" file
 
 ## 🎨 Customization
 
