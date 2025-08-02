@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Only necessary fonts and styles -->
+    
     <link rel="stylesheet" href="https://db.onlinewebfonts.com/c/b2437a24f47a94383eb02858f8a4df97?family=Insomnia">
     <link rel="stylesheet" href="https://db.onlinewebfonts.com/c/e7322a6673613ab13604fadda3d20e56?family=VALORANT">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,113 +12,67 @@
 </head>
 <body>
     <header class="header-section-main">
-      <div class="header-bg-animation">
-        <svg class="cyber-grid" viewBox="0 0 1000 200" preserveAspectRatio="none">
-          <!-- Hexagonal Grid Pattern -->
-          <defs>
-            <pattern id="hexGrid" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
-              <path class="hex-path" d="M30,0 L60,17.32 L60,51.96 L30,69.28 L0,51.96 L0,17.32 Z" />
-            </pattern>
-            
-            <!-- Glow filter -->
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-          
-          <!-- Background with hexagonal pattern -->
-          <rect class="grid-bg" width="100%" height="100%" fill="url(#hexGrid)" />
-          
-          <!-- Animated lines -->
-          <path class="cyber-line" d="M0,100 L1000,100" filter="url(#glow)" />
-          <path class="cyber-line" d="M200,0 L200,200" filter="url(#glow)" />
-          <path class="cyber-line" d="M600,0 L600,200" filter="url(#glow)" />
-          <path class="cyber-line" d="M0,50 L1000,50" filter="url(#glow)" />
-          <path class="cyber-line" d="M0,150 L1000,150" filter="url(#glow)" />
-          
-          <!-- Data nodes -->
-          <circle class="data-node" cx="200" cy="50" r="6" filter="url(#glow)" />
-          <circle class="data-node" cx="200" cy="100" r="6" filter="url(#glow)" />
-          <circle class="data-node" cx="200" cy="150" r="6" filter="url(#glow)" />
-          <circle class="data-node" cx="600" cy="50" r="6" filter="url(#glow)" />
-          <circle class="data-node" cx="600" cy="100" r="6" filter="url(#glow)" />
-          <circle class="data-node" cx="600" cy="150" r="6" filter="url(#glow)" />
-          
-          <!-- Animated data pulses -->
-          <circle class="data-pulse" cx="200" cy="50" r="2" />
-          <circle class="data-pulse" cx="600" cy="100" r="2" />
-          <circle class="data-pulse" cx="200" cy="150" r="2" />
-        </svg>
-      </div>
       <div class="header-opacity-bar"></div>
       <div class="cursor"></div>
       <div class="custom-container">
-        <div class="header-section-inner">
-          <div class="header-logo">
-            <a href="javascript:void(0);">
-              <img src="logo2.png" class="cursor-scale small" alt="TANZIL" />
-            </a>
-          </div>
-          <!-- Add mobile menu toggle button to header -->
-          <div class="mobile-menu-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div class="header-menu">
-            <ul>
-              <li class="active cursor-scale"><a href="javascript:void(0);" data-modal="tech-modal">TECH STACK</a></li>
-              <li class="cursor-scale"><a href="javascript:void(0);" data-modal="github-modal">GITHUB STATS</a></li>
+        <div class="header-section-inner">        
+          <!-- Navigation Menu -->
+          <nav class="header-menu" aria-label="Main navigation">
+            <ul role="menubar">
+              <li role="none">
+                <a href="javascript:void(0);" role="menuitem" data-modal="tech-modal" aria-haspopup="dialog">TECH STACK</a>
+              </li>
+              <li class="cursor-scale" role="none">
+                <a href="javascript:void(0);" role="menuitem" data-modal="github-modal" aria-haspopup="dialog">GITHUB STATS</a>
+              </li>
+             
             </ul>
-          </div>
+          </nav>
         </div>
       </div>
     </header>
     
     <!-- Tech Stack Modal -->
-    <div id="tech-modal" class="modal-overlay">
+    <div id="tech-modal" class="modal-overlay" role="dialog" aria-labelledby="tech-modal-title" aria-hidden="true">
         <div class="modal-box">
             <div class="modal-header">
-                <h2 class="section-title">TECH_STACK.dll</h2>
-                <span class="modal-close"><i class="fas fa-times"></i></span>
+                <h2 id="tech-modal-title" class="section-title">TECH_STACK</h2>
+                <button class="modal-close" aria-label="Close modal">
+                  <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
             </div>
             <div class="modal-content">
                 <div class="tech-grid">
                     <div class="cyber-panel">
                         <h3>LANGUAGES</h3>
                         <div class="tech-items">
-                            <span class="cyber-chip">Python</span>
-                            <span class="cyber-chip">JavaScript</span>
-                            <span class="cyber-chip">HTML</span>
-                            <span class="cyber-chip">CSS</span>
-                            <span class="cyber-chip">C</span>
-                            <span class="cyber-chip">C++</span>
+                            <span class="valorant radiant">Python</span>
+                            <span class="valorant immortal">JavaScript</span>
+                            <span class="valorant ascendant">HTML</span>
+                            <span class="valorant diamond">CSS</span>
+                            <span class="valorant platinum">C</span>
+                            <span class="valorant gold">C++</span>
                         </div>
                     </div>
                     <div class="cyber-panel">
                         <h3>FRAMEWORKS</h3>
                         <div class="tech-items">
-                            <span class="cyber-chip">React</span>
-                            <span class="cyber-chip">Node.js</span>
+                            <span class="valorant immortal">React</span>
+                            <span class="valorant ascendant">Node.js</span>
                         </div>
                     </div>
                     <div class="cyber-panel">
                         <h3>TOOLS</h3>
                         <div class="tech-items">
-                            <span class="cyber-chip">Git</span>
-                            <span class="cyber-chip">VS Code</span>
-                            <span class="cyber-chip">npm</span>
+                            <span class="valorant diamond">Git</span>
+                            <span class="valorant platinum">VS Code</span>
+                            <span class="valorant gold">npm</span>
                         </div>
                     </div>
                     <div class="cyber-panel">
                         <h3>DATABASES</h3>
                         <div class="tech-items">
-                            <span class="cyber-chip">MySQL</span>
+                            <span class="valorant silver">MySQL</span>
                         </div>
                     </div>
                 </div>
@@ -127,11 +81,13 @@
     </div>
     
     <!-- GitHub Stats Modal -->
-    <div id="github-modal" class="modal-overlay">
+    <div id="github-modal" class="modal-overlay" role="dialog" aria-labelledby="github-modal-title" aria-hidden="true">
         <div class="modal-box">
             <div class="modal-header">
-                <h2 class="section-title">GITHUB_STATS.log</h2>
-                <span class="modal-close"><i class="fas fa-times"></i></span>
+                <h2 id="github-modal-title" class="section-title">GITHUB_STATS.log</h2>
+                <button class="modal-close" aria-label="Close modal">
+                  <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
             </div>
             <div class="modal-content">
                 <div class="stats-grid">
@@ -146,7 +102,8 @@
         </div>
     </div>
     
-    <section class="banner-section-main">
+    <main>
+      <section id="home" class="banner-section-main">
   
       <div class="banner-section-inner">
         <div class="banner-section-loop">
@@ -172,7 +129,7 @@
               </div>
             </div>
             
-            <!-- Contact Options -->
+            
             <div id="contact" class="contact-options">
              
               <div class="controller-icons-main">
@@ -209,6 +166,8 @@
           </div>
         </div>
     </section>
+    </main>
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js"></script>

@@ -1,43 +1,59 @@
 jQuery(document).ready(function () {
-    // Initialize parallax effect for profile image
+    
     initParallax();
     
-    // Initialize custom cursor
+    
     initCustomCursor();
     
-    // Add animation to main image
+    
     setTimeout(function() {
-        document.querySelector(".main-img").classList.add("character-animation");
+        const mainImg = document.querySelector(".main-img");
+        if (mainImg) {
+            mainImg.classList.add("character-animation");
+        }
     }, 500);
     
-    // Init modal functionality
+    
     initModals();
     
-    // Add resize listener
+    
+    initSmoothScroll();
+    initScrollEffects();
+    
+    
     window.addEventListener('resize', handleResize);
     
-    // Initial resize check
+    
     handleResize();
     
-    // Mobile menu toggle
+    
+    initMobileMenu();
+});
+
+function initMobileMenu() {
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const headerMenu = document.querySelector('.header-menu');
     
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function() {
-            this.classList.toggle('active');
-            headerMenu.classList.toggle('active');
-            
-            // Toggle body scroll
-            if (headerMenu.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        });
+    if (!mobileMenuToggle || !headerMenu) {
+        console.warn('Mobile menu elements not found');
+        return;
+    }
+    
+    mobileMenuToggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+        headerMenu.classList.toggle('active');
         
-        // Close menu when clicking menu items on mobile
-        const menuItems = headerMenu.querySelectorAll('a');
+        
+        if (headerMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    });
+    
+    
+    const menuItems = headerMenu.querySelectorAll('a');
+    if (menuItems.length > 0) {
         menuItems.forEach(item => {
             item.addEventListener('click', function() {
                 mobileMenuToggle.classList.remove('active');
@@ -46,14 +62,18 @@ jQuery(document).ready(function () {
             });
         });
     }
-});
+}
 
 function initParallax() {
-    var scene = document.querySelectorAll(".scene");
-    if (scene.length > 0) {
-        scene.forEach(function(el) {
-            var parallax = new Parallax(el);
-        });
+    try {
+        var scene = document.querySelectorAll(".scene");
+        if (scene.length > 0 && typeof Parallax !== 'undefined') {
+            scene.forEach(function(el) {
+                var parallax = new Parallax(el);
+            });
+        }
+    } catch (error) {
+        console.warn('Parallax initialization failed:', error);
     }
 }
 
@@ -62,6 +82,11 @@ function initCustomCursor() {
     let cursorScale = document.querySelectorAll('.cursor-scale');
     let mouseX = 0;
     let mouseY = 0;
+
+    
+    if (typeof gsap === 'undefined' || !cursor) {
+        return;
+    }
 
     gsap.to({}, 0.016, {
         repeat: -1,
@@ -82,19 +107,23 @@ function initCustomCursor() {
         mouseY = e.clientY;
     });
     
-    if (cursorScale) {
+    if (cursorScale.length > 0) {
         cursorScale.forEach(link => {
             link.addEventListener('mousemove', () => {
-                cursor.classList.add('grow');
-                if (link.classList.contains('small')) {
-                    cursor.classList.remove('grow');
-                    cursor.classList.add('grow-small');
+                if (cursor) {
+                    cursor.classList.add('grow');
+                    if (link.classList.contains('small')) {
+                        cursor.classList.remove('grow');
+                        cursor.classList.add('grow-small');
+                    }
                 }
             });
             
             link.addEventListener('mouseleave', () => {
-                cursor.classList.remove('grow');
-                cursor.classList.remove('grow-small');
+                if (cursor) {
+                    cursor.classList.remove('grow');
+                    cursor.classList.remove('grow-small');
+                }
             });
         });
     }
@@ -103,7 +132,7 @@ function initCustomCursor() {
 
 
 function initSmoothScroll() {
-    // Smooth scroll for navigation links
+    
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
@@ -123,9 +152,14 @@ function initSmoothScroll() {
 }
 
 function initScrollEffects() {
+    const header = document.querySelector('.header-section-main');
+    if (!header) {
+        console.warn('Header element not found for scroll effects');
+        return;
+    }
+
     window.addEventListener('scroll', function() {
         const scrollPosition = window.scrollY;
-        const header = document.querySelector('.header-section-main');
         
         if (scrollPosition > 100) {
             header.style.background = 'rgba(13, 2, 33, 0.95)';
@@ -135,7 +169,7 @@ function initScrollEffects() {
             header.style.boxShadow = '0 0 20px rgba(0, 255, 65, 0.3)';
         }
         
-        // Check which section is visible and highlight nav item
+        
         const sections = document.querySelectorAll('section[id]');
         
         sections.forEach(section => {
@@ -144,17 +178,23 @@ function initScrollEffects() {
             const sectionId = section.getAttribute('id');
             
             if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                document.querySelector(`.header-menu ul li a[href="#${sectionId}"]`)?.parentElement?.classList.add('active');
+                const activeLink = document.querySelector(`.header-menu ul li a[href="#${sectionId}"]`);
+                if (activeLink && activeLink.parentElement) {
+                    activeLink.parentElement.classList.add('active');
+                }
             } else {
-                document.querySelector(`.header-menu ul li a[href="#${sectionId}"]`)?.parentElement?.classList.remove('active');
+                const inactiveLink = document.querySelector(`.header-menu ul li a[href="#${sectionId}"]`);
+                if (inactiveLink && inactiveLink.parentElement) {
+                    inactiveLink.parentElement.classList.remove('active');
+                }
             }
         });
     });
 }
 
-// Fix for modal initialization
+
 function initModals() {
-    // Open modal when clicking on menu items
+    
     document.querySelectorAll('[data-modal]').forEach(trigger => {
         trigger.addEventListener('click', function(e) {
             e.preventDefault();
@@ -166,7 +206,7 @@ function initModals() {
         });
     });
     
-    // Close modal when clicking on close button
+    
     document.querySelectorAll('.modal-close').forEach(closeBtn => {
         closeBtn.addEventListener('click', function() {
             const modal = this.closest('.modal-overlay');
@@ -174,7 +214,7 @@ function initModals() {
         });
     });
     
-    // Close modal when clicking outside modal content
+    
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -183,7 +223,7 @@ function initModals() {
         });
     });
     
-    // Close modal with ESC key
+    
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const activeModal = document.querySelector('.modal-overlay.active');
@@ -195,49 +235,59 @@ function initModals() {
 }
 
 function openModal(modal) {
-    if (modal) {
-        // Reset scroll position
-        modal.querySelector('.modal-content').scrollTop = 0;
-        
-        // Add active class to show modal with animation
-        modal.classList.add('active');
-        
-        // Prevent body scrolling
-        document.body.style.overflow = 'hidden';
+    if (!modal) {
+        console.warn('Modal element not found');
+        return;
     }
+    
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.scrollTop = 0;
+    }
+    
+    
+    modal.classList.add('active');
+    
+    
+    document.body.style.overflow = 'hidden';
 }
 
 function closeModal(modal) {
-    if (modal) {
-        // Remove active class to hide modal with animation
-        modal.classList.remove('active');
-        
-        // Re-enable body scrolling
-        document.body.style.overflow = '';
+    if (!modal) {
+        console.warn('Modal element not found');
+        return;
     }
+    
+    
+    modal.classList.remove('active');
+    
+    
+    document.body.style.overflow = '';
 }
 
-// Enhanced resize handler for better responsiveness
+
 function handleResize() {
-    // Reinitialize parallax on resize
+    
     setTimeout(initParallax, 100);
     
-    // Reset mobile menu state on window resize (especially orientation change)
+    
     if (window.innerWidth > 768) {
         const headerMenu = document.querySelector('.header-menu');
         const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
         
         if (headerMenu && headerMenu.classList.contains('active')) {
             headerMenu.classList.remove('active');
-            if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
+            if (mobileMenuToggle) {
+                mobileMenuToggle.classList.remove('active');
+            }
             document.body.style.overflow = '';
         }
     }
 }
 
-// Add this at the bottom of the file to ensure all elements are properly initialized
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Re-initialize modals after a slight delay to ensure all elements are ready
+    
     setTimeout(function() {
         initModals();
     }, 100);
