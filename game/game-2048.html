@@ -1,77 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2048 Game</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #1a202c;
-            color: #e2e8f0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .score {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #00E15C;
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(4, 80px);
-            grid-gap: 10px;
-            background: #4a5568;
-            padding: 10px;
-            border-radius: 10px;
-            border: 2px solid #00E15C;
-        }
-        .cell {
-            width: 80px;
-            height: 80px;
-            background: #718096;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-        }
-        .instructions {
-            margin-top: 20px;
-            text-align: center;
-            color: #a0aec0;
-        }
-        .restart {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #00E15C;
-            color: #1a202c;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .controls { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
-        .controls label { color:#a0aec0; font-size:14px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>2048 Game</title>
+  <link rel="stylesheet" href="game-common.css">
 </head>
 <body>
+  <div class="game-container">
     <div class="controls">
-        <label><input type="checkbox" id="sound" checked> Sound</label>
+      <label><input type="checkbox" id="sound" checked> Sound</label>
     </div>
     <div class="score">Score: <span id="score">0</span></div>
     <div class="board" id="board"></div>
     <div class="instructions">Use arrow keys to move tiles</div>
     <button class="restart" onclick="initGame()">New Game</button>
-
-    <script>
+  </div>
+  <script>
         let board = Array(4).fill().map(() => Array(4).fill(0));
         let score = 0;
 
@@ -124,9 +69,9 @@
         }
 
         let soundOn = true;
-        const moveS = new Audio('assets/move.wav');
-        const mergeS = new Audio('assets/merge.wav');
-        const play = a => { if (soundOn) { try { a.currentTime = 0; a.play(); } catch(_) {} } };
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AC();
+        function sfx(freq=240,dur=0.05,type='square',gain=0.04){ if(!soundOn)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type=type;o.frequency.value=freq;g.gain.value=gain;o.connect(g);g.connect(audioCtx.destination);o.start();setTimeout(()=>o.stop(),dur*1000); }
         document.getElementById('sound').addEventListener('change', e => soundOn = e.target.checked);
 
         // Mark if a merge happened in the last move
@@ -189,19 +134,11 @@
             }
             
             if (moved) {
-                board = newBoard;
-                addRandomTile();
-                updateDisplay();
-                play(moveS);
-                
-                if (mergeHappened) play(mergeS);
+                board = newBoard; addRandomTile(); updateDisplay(); sfx(240,0.04,'square');
+                if (mergeHappened) sfx(420,0.06,'square');
                 mergeHappened = false;
-                
-                if (checkWin()) {
-                    alert('You Win!');
-                } else if (checkGameOver()) {
-                    alert('Game Over!');
-                }
+                if (checkWin()) { alert('You Win!'); [500,700,900].forEach((f,i)=>setTimeout(()=>sfx(f,0.07,'triangle'), i*120)); }
+                else if (checkGameOver()) { alert('Game Over!'); sfx(180,0.25,'sawtooth'); }
             }
         }
 
@@ -256,6 +193,69 @@
                 case 'ArrowDown':
                     e.preventDefault();
                     move('down');
+                    break;
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>
+        function checkGameOver() {
+            // Check for empty cells
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (board[i][j] === 0) return false;
+                }
+            }
+            
+            // Check for possible merges
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const current = board[i][j];
+                    if ((i < 3 && board[i + 1][j] === current) ||
+                        (j < 3 && board[i][j + 1] === current)) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        function initGame() {
+            board = Array(4).fill().map(() => Array(4).fill(0));
+            score = 0;
+            addRandomTile();
+            addRandomTile();
+            updateDisplay();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    move('left');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    move('right');
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    move('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    move('down');
+                    break;
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>
                     break;
             }
         });

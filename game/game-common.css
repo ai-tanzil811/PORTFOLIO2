@@ -1,0 +1,138 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #1a202c;
+  color: #e2e8f0;
+  font-family: 'Inter', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+.game-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+canvas, .board, .memory-board {
+  width: 100%;
+  max-width: 400px;
+  background: #2d3748;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px #0004;
+  margin: 0 auto;
+}
+canvas {
+  border: 2px solid #00E15C;
+  display: block;
+  height: auto;
+  max-height: 400px;
+}
+.status, .score, .instructions, .controls {
+  margin: 8px 0;
+  text-align: center;
+}
+.status, .score {
+  font-size: 1.2rem;
+  color: #00E15C;
+}
+.instructions {
+  color: #a0aec0;
+  font-size: 1rem;
+}
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.controls label {
+  color: #a0aec0;
+  font-size: 0.95rem;
+}
+.controls select, .controls input[type="checkbox"] {
+  accent-color: #00E15C;
+}
+button, .restart {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: #00E15C;
+  color: #1a202c;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+button:hover, .restart:hover {
+  background: #72F9A1;
+}
+.board, .memory-board {
+  display: grid;
+  gap: 5px;
+  margin: 16px 0;
+}
+.board {
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  max-width: 320px;
+}
+.cell {
+  width: 100px;
+  height: 100px;
+  background: #4a5568;
+  border: 2px solid #00E15C;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+.cell:hover {
+  background: #718096;
+}
+.memory-board {
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  max-width: 400px;
+}
+.memory-card {
+  width: 80px;
+  height: 80px;
+  background: #4a5568;
+  border: 2px solid #00E15C;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+  position: relative;
+}
+.memory-card.flipped, .memory-card.matched {
+  background: #00E15C;
+  color: #1a202c;
+}
+@media (max-width: 600px) {
+  .game-container, .board, .memory-board, canvas {
+    max-width: 98vw;
+  }
+  .cell, .memory-card {
+    width: 22vw;
+    height: 22vw;
+    font-size: 1.5rem;
+  }
+}

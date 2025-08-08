@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Flappy Bird</title>
+  <link rel="stylesheet" href="game-common.css">
+</head>
+<body>
+  <div class="game-container">
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="controls">
+      <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <canvas id="c" width="400" height="600"></canvas>
+    <div class="instructions">Tap/Click or press Space to flap</div>
+  </div>
+  <script>
+    const c = document.getElementById('c'), x = c.getContext('2d'), sEl = document.getElementById('score');
+    let birdY=300, birdV=0, gravity=0.35, flap=-7, pipes=[], gap=140, speed=2.2, score=0, running=true;
+    let soundOn=true; const AC = window.AudioContext||window.webkitAudioContext; const ctx = new AC();
+    function sfx(freq=600,dur=0.06,type='square',gain=0.05){ if(!soundOn)return; const o=ctx.createOscillator(),g=ctx.createGain(); o.type=type;o.frequency.value=freq;g.gain.value=gain;o.connect(g);g.connect(ctx.destination);o.start();setTimeout(()=>o.stop(),dur*1000); }
+    document.getElementById('sound').addEventListener('change', e=>soundOn=e.target.checked);
+
+    function addPipe(){
+      const topH = 80 + Math.random()*280;
+      pipes.push({x:c.width, top:topH, passed:false});
+    }
+    function reset(){ birdY=300; birdV=0; pipes.length=0; score=0; sEl.textContent=score; for(let i=0;i<4;i++){ addPipe(); pipes[i].x+=i*150; } running=true; }
+    function flapBird(){ birdV = flap; sfx(700,0.05,'square'); }
+
+    c.addEventListener('mousedown', flapBird);
+    c.addEventListener('touchstart', e=>{e.preventDefault();flapBird();},{passive:false});
+    document.addEventListener('keydown', e=>{ if(e.code==='Space'){ e.preventDefault(); flapBird(); } });
+
+    function update(){
+      if(!running) return;
+      birdV += gravity; birdY += birdV;
+      if (birdY<0){ birdY=0; birdV=0; }
+      // move pipes
+      pipes.forEach(p=>p.x -= speed);
+      if (pipes[0].x < -60) pipes.shift(), addPipe();
+
+      // collision + score
+      for (const p of pipes){
+        const pipeW=60, bottomY = p.top + gap;
+        // score
+        if (!p.passed && p.x + pipeW < 50){ p.passed = true; score++; sEl.textContent=score; sfx(300,0.08,'triangle'); }
+        // collision rects
+        const inX = 50 > p.x && 50 < p.x + pipeW;
+        const hitTop = inX && birdY < p.top;
+        const hitBottom = inX && birdY + 20 > bottomY;
+        if (hitTop || hitBottom || birdY > c.height){ running=false; sfx(180,0.25,'sawtooth'); setTimeout(reset, 900); break; }
+      }
+    }
+    function draw(){
+      x.clearRect(0,0,c.width,c.height);
+      // bird
+      x.fillStyle="#00E15C"; x.fillRect(30,birdY,20,20);
+      // pipes
+      for (const p of pipes){
+        x.fillStyle="#72F9A1";
+        x.fillRect(p.x,0,60,p.top);
+        x.fillRect(p.x,p.top+gap,60,c.height-(p.top+gap));
+      }
+    }
+    function loop(){ update(); draw(); requestAnimationFrame(loop); }
+    reset(); loop();
+  </script>
+</body>
+</html>
+    reset(); loop();
+  </script>
+</body>
+</html>

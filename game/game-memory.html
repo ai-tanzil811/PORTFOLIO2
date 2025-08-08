@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Memory Match</title>
+  <link rel="stylesheet" href="game-common.css">
+</head>
+<body>
+  <div class="game-container">
+    <div class="score">Moves: <span id="moves">0</span></div>
+    <div class="memory-board" id="memory-board"></div>
+    <button class="restart" onclick="initMemory()">Restart</button>
+    <div class="instructions">Click cards to flip and match pairs</div>
+  </div>
+  <script>
+    const icons = ['🍎','🍌','🍇','🍉','🍒','🍋','🍓','🥝'];
+    let board = [], flipped = [], matched = 0, moves = 0;
+    function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+    function render() {
+      const el = document.getElementById('memory-board');
+      el.innerHTML = '';
+      board.forEach((card,i)=>{
+        const d = document.createElement('div');
+        d.className = 'memory-card'+(card.flipped||card.matched?' flipped':'');
+        d.textContent = card.flipped||card.matched ? card.icon : '';
+        d.onclick = ()=>flip(i);
+        el.appendChild(d);
+      });
+      document.getElementById('moves').textContent = moves;
+    }
+    function flip(i){
+      if(board[i].flipped||board[i].matched||flipped.length===2)return;
+      board[i].flipped = true; flipped.push(i); render();
+      if(flipped.length===2){
+        moves++;
+        if(board[flipped[0]].icon===board[flipped[1]].icon){
+          board[flipped[0]].matched=board[flipped[1]].matched=true;
+          matched+=2; flipped=[];
+          if(matched===16)setTimeout(()=>alert('You win!'),300);
+        }else{
+          setTimeout(()=>{board[flipped[0]].flipped=board[flipped[1]].flipped=false;flipped=[];render();},800);
+        }
+      }
+    }
+    function initMemory(){
+      let cards = icons.concat(icons).map(icon=>({icon,flipped:false,matched:false}));
+      shuffle(cards); board=cards; flipped=[]; matched=0; moves=0; render();
+    }
+    initMemory();
+  </script>
+</body>
+</html>
