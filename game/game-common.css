@@ -12,6 +12,8 @@ body {
   align-items: center;
   min-height: 100vh;
   overflow-x: hidden;
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
 .game-container {
@@ -230,6 +232,11 @@ button:hover, .restart:hover {
 }
 
 @media (max-width: 480px) {
+  .game-container { gap: 8px; padding: 10px; }
+  .controls { padding: 8px; }
+  .audio-controls { top: 8px; right: 8px; }
+  .audio-btn { width: 34px; height: 34px; font-size: 14px; }
+  
   .board {
     max-width: 90vw;
   }
@@ -240,17 +247,6 @@ button:hover, .restart:hover {
   
   .memory-card {
     font-size: clamp(12px, 3vw, 20px);
-  }
-  
-  .audio-controls {
-    top: 10px;
-    right: 10px;
-  }
-  
-  .audio-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
   }
 }
 
