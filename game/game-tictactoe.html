@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin: 20px 0;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: #4a5568;
+            border: 2px solid #00E15C;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .cell:hover {
+            background: #718096;
+        }
+        .status {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #00E15C;
+        }
+        .restart {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #00E15C;
+            color: #1a202c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .controls { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
+        .controls label { color:#a0aec0; font-size:14px; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label>Difficulty:
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </label>
+        <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <div class="status" id="status">Player X's turn</div>
+    <div class="board" id="board"></div>
+    <button class="restart" onclick="restartGame()">Restart Game</button>
+
+    <script>
+        let board = Array(9).fill(null);
+        let currentPlayer = 'X';
+        let gameActive = true;
+
+        const placeS = new Audio('assets/place.wav');
+        const winS = new Audio('assets/ttt_win.wav');
+        const drawS = new Audio('assets/ttt_draw.wav');
+        let soundOn = true;
+        const play = a => { if (soundOn) { try { a.currentTime = 0; a.play(); } catch(_) {} } };
+        document.getElementById('sound').addEventListener('change', e => soundOn = e.target.checked);
+        const diffSel = document.getElementById('difficulty');
+
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.onclick = () => makeMove(i);
+                boardElement.appendChild(cell);
+            }
+        }
+
+        function makeMove(index) {
+            if (board[index] || !gameActive) return;
+            board[index] = currentPlayer;
+            updateDisplay();
+            play(placeS);
+
+            if (checkWinner()) {
+                document.getElementById('status').textContent = `Player ${currentPlayer} wins!`;
+                gameActive = false;
+                play(winS);
+                return;
+            } else if (board.every(cell => cell)) {
+                document.getElementById('status').textContent = "It's a draw!";
+                gameActive = false;
+                play(drawS);
+                return;
+            }
+
+            // Switch to AI (O)
+            aiTurn();
+        }
+
+        function randChoice(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+        function empties(b) { return b.map((v,i)=>v?null:i).filter(v=>v!==null); }
+        function maybeWinIdx(b, p) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for (const line of wins) {
+                const vals = line.map(i => b[i]);
+                if (vals.filter(v=>v===p).length===2 && vals.includes(null)) {
+                    return line[vals.indexOf(null)];
+                }
+            }
+            return undefined;
+        }
+        function minimax(state, player) {
+            const avail = state.map((v,i)=>v?null:i).filter(v=>v!==null);
+            const winState = (s,p)=>[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(a=>a.every(i=>s[i]===p));
+            if (winState(state,'X')) return { score:-10 };
+            if (winState(state,'O')) return { score:10 };
+            if (avail.length===0) return { score:0 };
+            const moves=[];
+            for (const i of avail) {
+                const m={index:i};
+                state[i]=player;
+                m.score = minimax(state, player==='O'?'X':'O').score;
+                state[i]=null;
+                moves.push(m);
+            }
+            let pick;
+            if (player==='O') { let best=-Infinity; moves.forEach((m,idx)=>{ if(m.score>best){best=m.score;pick=idx;} }); }
+            else { let best=Infinity; moves.forEach((m,idx)=>{ if(m.score<best){best=m.score;pick=idx;} }); }
+            return moves[pick]||{};
+        }
+
+        function aiTurn() {
+            if (!gameActive) return;
+            const d = diffSel.value;
+            let idx;
+            if (d === 'easy') {
+                const e = empties(board);
+                idx = randChoice(e);
+            } else if (d === 'medium') {
+                idx = maybeWinIdx(board, 'O');
+                if (idx === undefined) idx = maybeWinIdx(board, 'X');
+                if (idx === undefined) idx = randChoice(empties(board));
+            } else {
+                idx = minimax(board.slice(), 'O').index;
+            }
+            if (idx !== undefined) {
+                board[idx] = 'O';
+                updateDisplay();
+                if (checkWinner()) { document.getElementById('status').textContent = `Player O wins!`; gameActive=false; play(winS); return; }
+                if (board.every(cell=>cell)) { document.getElementById('status').textContent = "It's a draw!"; gameActive=false; play(drawS); return; }
+                currentPlayer = 'X';
+                document.getElementById('status').textContent = `Player ${currentPlayer}'s turn`;
+            }
+        }
+
+        function checkWinner() {
+            const winnningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6] // diagonals
+            ];
+            return winnningCombinations.some(combination => {
+                const [a, b, c] = combination;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+
+        function updateDisplay() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = board[index] || '';
+            });
+        }
+
+        function restartGame() {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('status').textContent = "Player X's turn";
+            updateDisplay();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>

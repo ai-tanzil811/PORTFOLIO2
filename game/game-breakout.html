@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakout Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        canvas {
+            border: 2px solid #00E15C;
+            border-radius: 8px;
+            background: #2d3748;
+        }
+        .score {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #00E15C;
+        }
+        .instructions {
+            margin-top: 10px;
+            text-align: center;
+            color: #a0aec0;
+        }
+        .controls { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
+        .controls label { color:#a0aec0; font-size:14px; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label>Difficulty:
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+            </select>
+        </label>
+        <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <div class="score">Score: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
+    <div class="instructions">
+        Use arrow keys to control the paddle
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        let paddleX = 170;
+        let ballX = 200;
+        let ballY = 250;
+        let ballDX = 3;
+        let ballDY = -3;
+        let score = 0;
+        let lives = 3;
+        let bricks = [];
+
+        const brickS = new Audio('assets/brick.wav');
+        const winS = new Audio('assets/win.wav');
+        const loseS = new Audio('assets/lose.wav');
+        let soundOn = true;
+        const play = a => { if (soundOn) { try { a.currentTime = 0; a.play(); } catch(_) {} } };
+
+        const diffSel = document.getElementById('difficulty');
+        const soundChk = document.getElementById('sound');
+        diffSel.addEventListener('change', applyDifficulty);
+        soundChk.addEventListener('change', e => soundOn = e.target.checked);
+
+        // Initialize bricks
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 8; j++) {
+                bricks.push({
+                    x: j * 50 + 5,
+                    y: i * 20 + 30,
+                    width: 45,
+                    height: 15,
+                    destroyed: false
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw paddle
+            ctx.fillStyle = "#00E15C";
+            ctx.fillRect(paddleX, 280, 60, 10);
+            
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw bricks
+            bricks.forEach(brick => {
+                if (!brick.destroyed) {
+                    ctx.fillStyle = "#f6ad55";
+                    ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                }
+            });
+            
+            // HUD
+            ctx.fillStyle = "#72F9A1";
+            ctx.font = "14px Arial";
+            ctx.fillText(`Score: ${score}`, 10, 16);
+            ctx.fillText(`Lives: ${lives}`, canvas.width - 80, 16);
+        }
+
+        function update() {
+            // Update ball position
+            ballX += ballDX;
+            ballY += ballDY;
+            
+            // Ball collision with walls
+            if (ballX < 8 || ballX > canvas.width - 8) {
+                ballDX *= -1;
+            }
+            if (ballY < 8) {
+                ballDY *= -1;
+            }
+            
+            // Ball collision with paddle
+            if (ballY > 270 && ballY < 290 && ballX > paddleX && ballX < paddleX + 60) {
+                ballDY *= -1;
+            }
+            
+            // Ball goes below paddle
+            if (ballY > canvas.height) {
+                lives--;
+                if (lives <= 0) {
+                    alert('Game Over! Score: ' + score);
+                    play(loseS);
+                    score = 0; lives = 3;
+                    bricks.forEach(b => b.destroyed = false);
+                }
+                resetBall();
+            }
+            
+            // Ball collision with bricks
+            bricks.forEach(brick => {
+                if (!brick.destroyed && 
+                    ballX > brick.x && ballX < brick.x + brick.width &&
+                    ballY > brick.y && ballY < brick.y + brick.height) {
+                    brick.destroyed = true;
+                    ballDY *= -1;
+                    score += 10;
+                    scoreElement.textContent = score;
+                    play(brickS);
+                }
+            });
+            
+            // Check win condition
+            if (bricks.every(b => b.destroyed)) {
+                alert('You Win! Score: ' + score);
+                play(winS);
+                bricks.forEach(b => b.destroyed = false);
+                resetBall();
+            }
+        }
+
+        function applyDifficulty() {
+            const d = diffSel.value;
+            lives = d === 'easy' ? 5 : d === 'hard' ? 2 : 3;
+            const speed = d === 'easy' ? 2 : d === 'hard' ? 4 : 3;
+            ballDX = speed; ballDY = -speed;
+            paddleX = 170;
+        }
+        function resetBall() {
+            const d = diffSel.value;
+            const speed = d === 'easy' ? 2 : d === 'hard' ? 4 : 3;
+            ballX = canvas.width/2; ballY = canvas.height - 50;
+            ballDX = speed; ballDY = -speed; paddleX = 170;
+        }
+        applyDifficulty();
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    paddleX = Math.max(0, paddleX - 20);
+                    break;
+                case 'ArrowRight':
+                    paddleX = Math.min(canvas.width - 60, paddleX + 20);
+                    break;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>

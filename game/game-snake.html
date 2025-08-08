@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        canvas {
+            border: 2px solid #00E15C;
+            border-radius: 8px;
+            background: #2d3748;
+        }
+        .score {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #00E15C;
+        }
+        .instructions {
+            margin-top: 10px;
+            text-align: center;
+            color: #a0aec0;
+        }
+        .controls { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
+        .controls label { color:#a0aec0; font-size:14px; }
+        .controls select, .controls input { accent-color:#00E15C; }
+    </style>
+</head>
+<body>
+    <div class="score">Score: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
+    <div class="controls">
+        <label>Difficulty:
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+            </select>
+        </label>
+        <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <div class="instructions">
+        Use arrow keys to control the snake. Press R to restart.
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        let snake = [{ x: 200, y: 150 }];
+        let direction = 'RIGHT';
+        let food = { x: 100, y: 100 };
+        let gameOver = false;
+        let score = 0;
+
+        let soundOn = true;
+        const eatS = new Audio('assets/eat.wav');
+        const dieS = new Audio('assets/die.wav');
+        const play = a => { if (soundOn) { try { a.currentTime = 0; a.play(); } catch(_) {} } };
+
+        let tickMs = 100;
+        const diffSel = document.getElementById('difficulty');
+        const soundChk = document.getElementById('sound');
+        diffSel.addEventListener('change', applyDifficulty);
+        soundChk.addEventListener('change', e => soundOn = e.target.checked);
+        function applyDifficulty() {
+            const d = diffSel.value;
+            tickMs = d === 'easy' ? 120 : d === 'hard' ? 70 : 100;
+        }
+        applyDifficulty();
+
+        function generateFood() {
+            do {
+                food.x = Math.floor(Math.random() * (canvas.width / 10)) * 10;
+                food.y = Math.floor(Math.random() * (canvas.height / 10)) * 10;
+            } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw snake
+            ctx.fillStyle = "#48bb78";
+            snake.forEach(segment => {
+                ctx.fillRect(segment.x, segment.y, 10, 10);
+            });
+            
+            // Draw food
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(food.x, food.y, 10, 10);
+        }
+
+        function update() {
+            if (gameOver) return;
+            
+            let head = { ...snake[0] };
+            
+            switch(direction) {
+                case 'LEFT': head.x -= 10; break;
+                case 'RIGHT': head.x += 10; break;
+                case 'UP': head.y -= 10; break;
+                case 'DOWN': head.y += 10; break;
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreElement.textContent = score;
+                generateFood();
+                play(eatS);
+            } else {
+                snake.pop();
+            }
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                gameOver = true;
+                alert('Game Over! Score: ' + score);
+                play(dieS);
+                return;
+            }
+            
+            // Check self collision
+            if (snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver = true;
+                alert('Game Over! Score: ' + score);
+                play(dieS);
+                return;
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            if (!gameOver) {
+                setTimeout(gameLoop, tickMs);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    if (direction !== 'RIGHT') direction = 'LEFT';
+                    break;
+                case 'ArrowRight':
+                    if (direction !== 'LEFT') direction = 'RIGHT';
+                    break;
+                case 'ArrowUp':
+                    if (direction !== 'DOWN') direction = 'UP';
+                    break;
+                case 'ArrowDown':
+                    if (direction !== 'UP') direction = 'DOWN';
+                    break;
+            }
+            if (e.key.toLowerCase() === 'r' && gameOver) {
+                // quick restart
+                snake = [{ x: 200, y: 150 }];
+                direction = 'RIGHT';
+                score = 0;
+                gameOver = false;
+                generateFood();
+                gameLoop();
+            }
+        });
+
+        // Initialize game
+        generateFood();
+        gameLoop();
+    </script>
+</body>
+</html>

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Tailwind's gray-900 equivalent */
+            color: #e2e8f0; /* Tailwind's gray-200 equivalent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 1rem;
+        }
+
+        canvas {
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background-color: #2d3748; /* Tailwind's gray-800 equivalent */
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+
+        #g2048 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            padding: 0.5rem;
+            background-color: #4a5568; /* Tailwind's gray-700 equivalent */
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .gcell {
+            background-color: #718096; /* Tailwind's gray-500 equivalent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            border-radius: 0.25rem;
+        }
+
+        #ttt-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            padding: 0.5rem;
+            background-color: #4a5568;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .ttt-cell {
+            background-color: #718096;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #cbd5e0; /* Tailwind's gray-300 equivalent */
+            cursor: pointer;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .ttt-cell:hover {
+            background-color: #a0aec0; /* Tailwind's gray-400 equivalent */
+        }
+
+        .btn-style {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px; /* Full rounded corners */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: #4299e1; /* Tailwind's blue-500 */
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: none;
+        }
+        .btn-style:hover {
+            background-color: #3182ce; /* Tailwind's blue-600 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .btn-style:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2d3748;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="game-container" class="space-y-4">
+        <h1 id="game-title" class="text-3xl font-bold text-center">Game Suite</h1>
+        <div id="game-area" class="flex justify-center items-center">
+            <!-- Game content will be rendered here -->
+        </div>
+        <div id="menu-container" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <button class="btn-style" onclick="loadGame('snake')">Snake</button>
+            <button class="btn-style" onclick="loadGame('tictactoe')">Tic-Tac-Toe</button>
+            <button class="btn-style" onclick="loadGame('pong')">Pong</button>
+            <button class="btn-style" onclick="loadGame('breakout')">Breakout</button>
+            <button class="btn-style" onclick="loadGame('2048')">2048</button>
+        </div>
+        <div id="control-panel" class="flex space-x-4">
+            <button id="restart-btn" class="btn-style hidden">Restart</button>
+            <button id="back-btn" class="btn-style hidden">Back to Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for game state and rendering
+        let currentGame = null;
+        let animationFrameId = null;
+        const gameContainer = document.getElementById('game-area');
+        const gameTitle = document.getElementById('game-title');
+        const menuContainer = document.getElementById('menu-container');
+        const backBtn = document.getElementById('back-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Function to clear any active game state and listeners
+        function clearGame() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            // Remove all children from the game area
+            while (gameContainer.firstChild) {
+                gameContainer.removeChild(gameContainer.firstChild);
+            }
+            // Remove keyboard event listeners
+            document.removeEventListener('keydown', handleKeydown);
+            document.removeEventListener('keyup', handleKeyup);
+            // Hide control buttons
+            backBtn.classList.add('hidden');
+            restartBtn.classList.add('hidden');
+            // Hide any custom message boxes
+            const messageBox = document.querySelector('.message-box');
+            if (messageBox) {
+                messageBox.remove();
+            }
+            currentGame = null;
+        }
+
+        // Global key handlers to be assigned/unassigned
+        function handleKeydown(e) {
+            if (currentGame && games[currentGame].keydown) {
+                games[currentGame].keydown(e);
+            }
+        }
+
+        function handleKeyup(e) {
+            if (currentGame && games[currentGame].keyup) {
+                games[currentGame].keyup(e);
+            }
+        }
+        
+        // Main function to load a selected game
+        function loadGame(gameName) {
+            clearGame();
+            currentGame = gameName;
+            gameTitle.textContent = games[gameName].title;
+            menuContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            backBtn.classList.remove('hidden');
+            restartBtn.classList.remove('hidden');
+            
+            // Call the game's initialization function
+            games[gameName].init();
+            
+            // Set up restart button logic
+            restartBtn.onclick = () => games[gameName].init();
+            backBtn.onclick = () => showMenu();
+        }
+
+        // Function to show the main menu
+        function showMenu() {
+            clearGame();
+            gameTitle.textContent = "Game Suite";
+            menuContainer.classList.remove('hidden');
+            gameContainer.classList.add('hidden');
+        }
+
+        // Custom message box function to replace `alert()`
+        function showMessage(message, callback) {
+            const messageBox = document.createElement('div');
+            messageBox.className = 'message-box';
+            messageBox.innerHTML = `
+                <p class="text-xl mb-4">${message}</p>
+                <button class="btn-style" id="message-ok">OK</button>
+            `;
+            document.body.appendChild(messageBox);
+            document.getElementById('message-ok').onclick = () => {
+                messageBox.remove();
+                if (callback) callback();
+            };
+        }
+
+        // Object to hold all game logic
+        const games = {};
+
+        /* GAME: Snake */
+        games.snake = {
+            title: "Snake",
+            init: function() {
+                // Set up canvas
+                const canvas = document.createElement('canvas');
+                canvas.id = 'snake';
+                canvas.width = 400;
+                canvas.height = 300;
+                gameContainer.appendChild(canvas);
+                
+                const ctx = canvas.getContext('2d');
+                let snake, dir, food, gameOver;
+                
+                // Function to reset and start a new game
+                const resetGame = () => {
+                    snake = [{ x: 200, y: 150 }];
+                    dir = 'RIGHT';
+                    food = { x: 100, y: 100 };
+                    gameOver = false;
+                };
+
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = "#48bb78"; /* Green for the snake */
+                    snake.forEach(s => ctx.fillRect(s.x, s.y, 10, 10));
+                    ctx.fillStyle = "#fff"; /* White for the food */
+                    ctx.fillRect(food.x, food.y, 10, 10);
+                }
+
+                function update() {
+                    if (gameOver) return;
+                    let head = { ...snake[0] };
+                    if (dir === 'LEFT') head.x -= 10;
+                    if (dir === 'RIGHT') head.x += 10;
+                    if (dir === 'UP') head.y -= 10;
+                    if (dir === 'DOWN') head.y += 10;
+                    snake.unshift(head);
+                    if (head.x === food.x && head.y === food.y) {
+                        do {
+                            food.x = 10 * Math.floor(Math.random() * (canvas.width / 10));
+                            food.y = 10 * Math.floor(Math.random() * (canvas.height / 10));
+                        } while (snake.some(s => s.x === food.x && s.y === food.y));
+                    } else {
+                        snake.pop();
+                    }
+                    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.slice(1).some(s => s.x === head.x && s.y === head.y)) {
+                        gameOver = true;
+                        showMessage('Game Over!');
+                    }
+                }
+
+                this.keydown = (e) => {
+                    if (e.key === "ArrowLeft" && dir !== 'RIGHT') dir = 'LEFT';
+                    if (e.key === "ArrowRight" && dir !== 'LEFT') dir = 'RIGHT';
+                    if (e.key === "ArrowUp" && dir !== 'DOWN') dir = 'UP';
+                    if (e.key === "ArrowDown" && dir !== 'UP') dir = 'DOWN';
+                };
+
+                function loop() {
+                    update();
+                    draw();
+                    if (!gameOver) setTimeout(loop, 80);
+                }
+
+                // Initial setup
+                resetGame();
+                loop();
+                document.addEventListener('keydown', handleKeydown);
+            }
+        };
+
+        /* GAME: Tic-Tac-Toe */
+        games.tictactoe = {
+            title: "Tic-Tac-Toe",
+            init: function() {
+                const boardDiv = document.createElement('div');
+                boardDiv.id = 'ttt-board';
+                gameContainer.appendChild(boardDiv);
+                
+                let cells, turn, gameOver;
+                
+                const resetGame = () => {
+                    cells = Array(9).fill(null);
+                    turn = 'X';
+                    gameOver = false;
+                    render();
+                };
+
+                const render = () => {
+                    boardDiv.innerHTML = '';
+                    cells.forEach((v, i) => {
+                        const cell = document.createElement('div');
+                        cell.className = 'ttt-cell';
+                        cell.textContent = v || '';
+                        cell.onclick = () => move(i);
+                        boardDiv.appendChild(cell);
+                    });
+                };
+
+                const move = (i) => {
+                    if (gameOver || cells[i]) return;
+                    cells[i] = turn;
+                    if (checkWin(turn)) {
+                        gameOver = true;
+                        showMessage(`${turn} wins!`, render);
+                    } else if (cells.every(c => c)) {
+                        gameOver = true;
+                        showMessage('Draw!', render);
+                    }
+                    turn = turn === 'X' ? 'O' : 'X';
+                    render();
+                };
+
+                const checkWin = (p) => {
+                    const winPatterns = [
+                        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                        [0, 4, 8], [2, 4, 6]
+                    ];
+                    return winPatterns.some(pattern => pattern.every(j => cells[j] === p));
+                };
+
+                // AI integration for Tic-Tac-Toe
+                const aiMove = () => {
+                    if (gameOver) return;
+                    const best = minimax(cells.slice(), 'O').index;
+                    if (best !== undefined) {
+                        cells[best] = 'O';
+                        if (checkWin('O')) { gameOver = true; showMessage('O wins!'); }
+                        else if (cells.every(c => c)) { gameOver = true; showMessage('Draw!'); }
+                        turn = 'X';
+                        render();
+                    }
+                };
+                const minimax = (state, player) => {
+                    const avail = state.map((v,i)=>v?null:i).filter(v=>v!==null);
+                    const wins = (s,p)=>[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(a=>a.every(i=>s[i]===p));
+                    if (wins(state,'X')) return { score:-10 };
+                    if (wins(state,'O')) return { score:10 };
+                    if (avail.length===0) return { score:0 };
+                    const moves=[];
+                    for (const i of avail) {
+                        const m={index:i};
+                        state[i]=player;
+                        const r=minimax(state, player==='O'?'X':'O');
+                        m.score=r.score;
+                        state[i]=null;
+                        moves.push(m);
+                    }
+                    let pick;
+                    if (player==='O') {
+                        let best=-Infinity;
+                        moves.forEach((m,idx)=>{ if(m.score>best){best=m.score;pick=idx;}});
+                    } else {
+                        let best=Infinity;
+                        moves.forEach((m,idx)=>{ if(m.score<best){best=m.score;pick=idx;}});
+                    }
+                    return moves[pick]||{};
+                };
+                // augment move to call AI
+                const oldMove = move;
+                move = (i) => { oldMove(i); if (!gameOver && turn==='O') aiMove(); };
+
+                // Initial setup
+                resetGame();
+                this.keydown = null;
+            }
+        };
+
+        /* GAME: Pong */
+        games.pong = {
+            title: "Pong",
+            init: function() {
+                // Set up canvas
+                const canvas = document.createElement('canvas');
+                canvas.id = 'pong';
+                canvas.width = 400;
+                canvas.height = 300;
+                gameContainer.appendChild(canvas);
+
+                const ctx = canvas.getContext('2d');
+                let paddleY, ballX, ballY, ballDX, ballDY, paddleDY;
+                let cpuY = 120, cpuSpeed = 3;
+                let leftScore = 0, rightScore = 0;
+                
+                const resetGame = () => {
+                    paddleY = 120;
+                    ballX = 200;
+                    ballY = 150;
+                    ballDX = 2;
+                    ballDY = 2;
+                    paddleDY = 0;
+                    cpuY = 120;
+                    leftScore = 0;
+                    rightScore = 0;
+                };
+
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = "#00E15C"; /* Green for the paddle and ball */
+                    ctx.fillRect(10, paddleY, 10, 60); // paddle
+                    ctx.beginPath();
+                    ctx.arc(ballX, ballY, 8, 0, Math.PI * 2); // ball
+                    ctx.fill();
+
+                    // CPU paddle
+                    ctx.fillStyle = "#00E15C";
+                    ctx.fillRect(380, cpuY, 10, 60);
+                    // Score
+                    ctx.fillStyle = "#72F9A1";
+                    ctx.font = "16px Arial";
+                    ctx.fillText(`${leftScore} : ${rightScore}`, 180, 20);
+                }
+
+                function update() {
+                    paddleY += paddleDY;
+                    paddleY = Math.max(0, Math.min(canvas.height - 60, paddleY));
+                    ballX += ballDX;
+                    ballY += ballDY;
+                    if (ballY < 8 || ballY > canvas.height - 8) ballDY *= -1;
+                    if (ballX < 20 && ballY > paddleY && ballY < paddleY + 60) ballDX *= -1;
+
+                    // CPU AI
+                    const cpuCenter = cpuY + 30;
+                    if (cpuCenter < ballY - 5) cpuY = Math.min(canvas.height - 60, cpuY + cpuSpeed);
+                    else if (cpuCenter > ballY + 5) cpuY = Math.max(0, cpuY - cpuSpeed);
+
+                    // Right paddle collision
+                    if (ballX > canvas.width - 20 && ballY > cpuY && ballY < cpuY + 60) {
+                        ballDX *= -1;
+                        const offset = (ballY - (cpuY + 30)) / 30;
+                        ballDY = Math.max(-4, Math.min(4, ballDY + offset * 2));
+                        ballX = canvas.width - 20;
+                    }
+
+                    // Scoring
+                    if (ballX < 0) { rightScore++; resetBall(-1); }
+                    if (ballX > canvas.width) { leftScore++; resetBall(1); }
+                }
+                
+                this.keydown = (e) => {
+                    if (e.key === "ArrowUp") paddleDY = -4;
+                    if (e.key === "ArrowDown") paddleDY = 4;
+                };
+
+                this.keyup = (e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") paddleDY = 0;
+                };
+
+                const loop = () => {
+                    update();
+                    draw();
+                    animationFrameId = requestAnimationFrame(loop);
+                };
+
+                // Initial setup
+                resetGame();
+                loop();
+                document.addEventListener('keydown', handleKeydown);
+                document.addEventListener('keyup', handleKeyup);
+            }
+        };
+
+        /* GAME: Breakout */
+        games.breakout = {
+            title: "Breakout",
+            init: function() {
+                // Set up canvas
+                const canvas = document.createElement('canvas');
+                canvas.id = 'breakout';
+                canvas.width = 400;
+                canvas.height = 300;
+                gameContainer.appendChild(canvas);
+
+                const ctx = canvas.getContext('2d');
+                let paddleX, ballX, ballY, ballDX, ballDY, bricks;
+                let score = 0, lives = 3;
+                
+                const resetGame = () => {
+                    paddleX = 170;
+                    ballX = 200;
+                    ballY = 250;
+                    ballDX = 2;
+                    ballDY = -2;
+                    bricks = [];
+                    for (let i = 0; i < 5; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            bricks.push({ x: 50 * j + 10, y: 20 * i + 10, hit: false });
+                        }
+                    }
+                };
+
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = "#00E15C"; /* Green paddle and ball */
+                    ctx.fillRect(paddleX, 280, 60, 10);
+                    ctx.beginPath();
+                    ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = "#f6ad55"; /* Orange for bricks */
+                    bricks.forEach(b => {
+                        if (!b.hit) {
+                            ctx.fillRect(b.x, b.y, 40, 10);
+                        }
+                    });
+
+                    ctx.fillStyle = "#72F9A1";
+                    ctx.font = "14px Arial";
+                    ctx.fillText(`Score: ${score}`, 10, 16);
+                    ctx.fillText(`Lives: ${lives}`, 330, 16);
+                }
+
+                function update() {
+                    paddleX = Math.max(0, Math.min(canvas.width - 60, paddleX));
+                    ballX += ballDX;
+                    ballY += ballDY;
+                    if (ballX < 8 || ballX > canvas.width - 8) ballDX *= -1;
+                    if (ballY < 8) ballDY *= -1;
+                    if (ballY > 280 && ballX > paddleX && ballX < paddleX + 60) ballDY *= -1;
+                    if (ballY > canvas.height) {
+                        lives--;
+                        if (lives <= 0) {
+                            showMessage('Game Over!', resetGame);
+                            score = 0; lives = 3;
+                            bricks.forEach(b=>b.hit=false);
+                        }
+                        resetBall();
+                    }
+                    bricks.forEach(b=>{
+                        if (!b.hit && ballX > b.x && ballX < b.x+40 && ballY > b.y && ballY < b.y+10) {
+                            b.hit = true; ballDY *= -1; score += 10;
+                        }
+                    });
+                    if (bricks.every(b=>b.hit)) {
+                        showMessage('You Win!', resetGame);
+                        bricks.forEach(b=>b.hit=false);
+                        resetBall();
+                    }
+                }
+                function resetBall(){ ballX=200; ballY=250; ballDX=2; ballDY=-2; paddleX=170; }
+                
+                this.keydown = (e) => {
+                    if (e.key === "ArrowLeft") paddleX -= 20;
+                    if (e.key === "ArrowRight") paddleX += 20;
+                };
+
+                const loop = () => {
+                    update();
+                    draw();
+                    animationFrameId = requestAnimationFrame(loop);
+                };
+
+                // Initial setup
+                resetGame();
+                loop();
+                document.addEventListener('keydown', handleKeydown);
+            }
+        };
+
+        /* GAME: 2048 */
+        games['2048'] = {
+            title: "2048",
+            init: function() {
+                const boardDiv = document.createElement('div');
+                boardDiv.id = 'g2048';
+                gameContainer.appendChild(boardDiv);
+
+                const board = Array(4).fill().map(() => Array(4).fill(0));
+
+                const addTile = () => {
+                    let empty = [];
+                    for (let r = 0; r < 4; r++) {
+                        for (let c = 0; c < 4; c++) {
+                            if (!board[r][c]) empty.push([r, c]);
+                        }
+                    }
+                    if (empty.length) {
+                        let [r, c] = empty[Math.floor(Math.random() * empty.length)];
+                        board[r][c] = 2;
+                    }
+                };
+
+                const render = () => {
+                    boardDiv.innerHTML = '';
+                    const tileColors = {
+                        2: '#718096', 4: '#4a5568', 8: '#2d3748', 16: '#2c5282', 32: '#2b6cb0',
+                        64: '#005b9f', 128: '#0083B0', 256: '#00b4d8', 512: '#1abc9c', 1024: '#16a085', 2048: '#f39c12'
+                    };
+                    for (let r = 0; r < 4; r++) {
+                        for (let c = 0; c < 4; c++) {
+                            let cell = document.createElement('div');
+                            cell.className = 'gcell';
+                            cell.textContent = board[r][c] || '';
+                            cell.style.backgroundColor = tileColors[board[r][c]] || '#cbd5e0';
+                            boardDiv.appendChild(cell);
+                        }
+                    }
+                };
+
+                const slide = (row) => {
+                    let arr = row.filter(v => v);
+                    for (let i = 0; i < arr.length - 1; i++) {
+                        if (arr[i] === arr[i + 1]) {
+                            arr[i] *= 2;
+                            arr[i + 1] = 0;
+                        }
+                    }
+                    return arr.filter(v => v).concat(Array(4 - arr.filter(v => v).length).fill(0));
+                };
+
+                const move = (dir) => {
+                    let moved = false;
+                    if (dir === 'ArrowLeft') {
+                        for (let r = 0; r < 4; r++) {
+                            let old = board[r].slice();
+                            board[r] = slide(board[r]);
+                            if (board[r].join() !== old.join()) moved = true;
+                        }
+                    } else if (dir === 'ArrowRight') {
+                        for (let r = 0; r < 4; r++) {
+                            let old = board[r].slice();
+                            board[r] = slide(board[r].reverse()).reverse();
+                            if (board[r].join() !== old.join()) moved = true;
+                        }
+                    } else if (dir === 'ArrowUp') {
+                        for (let c = 0; c < 4; c++) {
+                            let col = board.map(r => r[c]);
+                            let old = col.slice();
+                            let ncol = slide(col);
+                            for (let r = 0; r < 4; r++) board[r][c] = ncol[r];
+                            if (ncol.join() !== old.join()) moved = true;
+                        }
+                    } else if (dir === 'ArrowDown') {
+                        for (let c = 0; c < 4; c++) {
+                            let col = board.map(r => r[c]);
+                            let old = col.slice();
+                            let ncol = slide(col.reverse()).reverse();
+                            for (let r = 0; r < 4; r++) board[r][c] = ncol[r];
+                            if (ncol.join() !== old.join()) moved = true;
+                        }
+                    }
+                    
+                    if (moved) {
+                        addTile();
+                        render();
+                    }
+                };
+
+                this.keydown = (e) => {
+                    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                        e.preventDefault(); // Prevent page scroll
+                        move(e.key);
+                    }
+                };
+
+                addTile();
+                addTile();
+                render();
+                document.addEventListener('keydown', handleKeydown);
+            }
+        };
+
+        // Initialize the app by showing the menu OR deep-link to a specific game
+        document.addEventListener('DOMContentLoaded', () => {
+          const params = new URLSearchParams(window.location.search);
+          const game = params.get('game');
+          if (game && typeof games[game] !== 'undefined') {
+            loadGame(game);
+          } else {
+            showMenu();
+          }
+        });
+    </script>
+</body>
+</html>

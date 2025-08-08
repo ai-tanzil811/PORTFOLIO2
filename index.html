@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://db.onlinewebfonts.com/c/e7322a6673613ab13604fadda3d20e56?family=VALORANT">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+   
+
     <title>ASHRAFUL ISLAM TANZIL</title>
 </head>
 <body>
@@ -25,7 +27,9 @@
               <li class="cursor-scale" role="none">
                 <a href="javascript:void(0);" role="menuitem" data-modal="github-modal" aria-haspopup="dialog">GITHUB STATS</a>
               </li>
-             
+              <li class="cursor-scale" role="none">
+                <a href="javascript:void(0);" role="menuitem" data-modal="game-modal" aria-haspopup="dialog">GAMES</a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -100,6 +104,40 @@
                 </div>
             </div>
         </div>
+    </div>
+    
+
+    <!-- Game Modal (loads the game suite) -->
+    <div id="game-modal" class="modal-overlay" role="dialog" aria-labelledby="game-modal-title" aria-hidden="true">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 id="game-modal-title" class="section-title">GAMES</h2>
+          <button class="modal-close" aria-label="Close modal">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="modal-content">
+          <div class="tech-grid">
+            <div class="cyber-panel">
+              <h3>CLASSIC GAMES</h3>
+              <div class="tech-items">
+                <a href="game/game-snake.html" class="valorant immortal">Snake</a>
+                <a href="game/game-pong.html" class="valorant radiant">Pong</a>
+                <a href="game/game-breakout.html" class="valorant ascendant">Breakout</a>
+              </div>
+            </div>
+            <div class="cyber-panel">
+              <h3>STRATEGY GAMES</h3>
+              <div class="tech-items">
+                <a href="game/game-tictactoe.html" class="valorant diamond">Tic‑Tac‑Toe</a>
+                <a href="game/game-2048.html" class="valorant platinum">2048</a>
+              </div>
+            </div>
+          </div>
+          <!-- removed iframe; links now navigate directly -->
+          <!-- <iframe id="game-frame" src="" frameborder="0"></iframe> -->
+        </div>
+      </div>
     </div>
     
     <main>

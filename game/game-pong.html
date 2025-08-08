@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        canvas {
+            border: 2px solid #00E15C;
+            border-radius: 8px;
+            background: #2d3748;
+        }
+        .instructions {
+            margin-top: 10px;
+            text-align: center;
+            color: #a0aec0;
+        }
+        .controls { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
+        .controls label { color:#a0aec0; font-size:14px; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label>Difficulty:
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+            </select>
+        </label>
+        <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
+    <div class="instructions">
+        Use arrow keys to control the paddle
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let paddleY = 120;
+        let ballX = 200;
+        let ballY = 150;
+        let ballDX = 3;
+        let ballDY = 3;
+        let paddleDY = 0;
+        let cpuY = 120, cpuSpeed = 3;
+        let leftScore = 0, rightScore = 0;
+
+        const hitS = new Audio('assets/paddle.wav');
+        const scoreS = new Audio('assets/score.wav');
+        let soundOn = true;
+        const play = a => { if (soundOn) { try { a.currentTime = 0; a.play(); } catch(_) {} } };
+
+        let baseBall = 3, baseCpu = 3;
+        const diffSel = document.getElementById('difficulty');
+        const soundChk = document.getElementById('sound');
+        diffSel.addEventListener('change', applyDifficulty);
+        soundChk.addEventListener('change', e => soundOn = e.target.checked);
+
+        function applyDifficulty() {
+            const d = diffSel.value;
+            if (d === 'easy') { baseBall = 2; baseCpu = 2; }
+            else if (d === 'hard') { baseBall = 4; baseCpu = 4; }
+            else { baseBall = 3; baseCpu = 3; }
+            resetBall(Math.random() > 0.5 ? 1 : -1);
+        }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw paddle
+            ctx.fillStyle = "#00E15C";
+            ctx.fillRect(10, paddleY, 10, 60);
+            
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // CPU paddle
+            ctx.fillStyle = "#00E15C";
+            ctx.fillRect(380, cpuY, 10, 60);
+            
+            // Score
+            ctx.fillStyle = "#72F9A1";
+            ctx.font = "16px Arial";
+            ctx.fillText(`${leftScore} : ${rightScore}`, 180, 20);
+        }
+
+        function update() {
+            // Update paddle
+            paddleY += paddleDY;
+            paddleY = Math.max(0, Math.min(canvas.height - 60, paddleY));
+            
+            // Update ball
+            ballX += ballDX;
+            ballY += ballDY;
+            
+            // Ball collision with top/bottom walls
+            if (ballY < 8 || ballY > canvas.height - 8) {
+                ballDY *= -1;
+            }
+            
+            // Ball collision with paddle
+            if (ballX < 20 && ballY > paddleY && ballY < paddleY + 60) {
+                ballDX *= -1;
+                ballX = 20;
+                play(hitS);
+            }
+            
+            // CPU AI follow
+            const cpuCenter = cpuY + 30;
+            if (cpuCenter < ballY - 5) cpuY = Math.min(canvas.height - 60, cpuY + cpuSpeed);
+            else if (cpuCenter > ballY + 5) cpuY = Math.max(0, cpuY - cpuSpeed);
+
+            // Right paddle collision
+            if (ballX > canvas.width - 20 && ballY > cpuY && ballY < cpuY + 60) {
+                ballDX *= -1;
+                const offset = (ballY - (cpuY + 30)) / 30;
+                ballDY = Math.max(-4, Math.min(4, ballDY + offset * 2));
+                ballX = canvas.width - 20;
+                play(hitS);
+            }
+
+            // Scoring
+            if (ballX < 0) { rightScore++; play(scoreS); resetBall(-1); }
+            if (ballX > canvas.width) { leftScore++; play(scoreS); resetBall(1); }
+        }
+
+        function resetBall(dir = 1) {
+            ballX = canvas.width/2; ballY = canvas.height/2;
+            ballDX = baseBall * dir;
+            ballDY = (Math.random()>0.5?1:-1) * baseBall;
+            paddleY = 120; cpuY = 120;
+            cpuSpeed = baseCpu;
+        }
+        applyDifficulty();
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                    paddleDY = -4;
+                    break;
+                case 'ArrowDown':
+                    paddleDY = 4;
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                paddleDY = 0;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>

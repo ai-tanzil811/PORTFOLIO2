@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .score {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #00E15C;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-gap: 10px;
+            background: #4a5568;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #00E15C;
+        }
+        .cell {
+            width: 80px;
+            height: 80px;
+            background: #718096;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        .instructions {
+            margin-top: 20px;
+            text-align: center;
+            color: #a0aec0;
+        }
+        .restart {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #00E15C;
+            color: #1a202c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .controls { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
+        .controls label { color:#a0aec0; font-size:14px; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="board" id="board"></div>
+    <div class="instructions">Use arrow keys to move tiles</div>
+    <button class="restart" onclick="initGame()">New Game</button>
+
+    <script>
+        let board = Array(4).fill().map(() => Array(4).fill(0));
+        let score = 0;
+
+        const tileColors = {
+            0: '#718096',
+            2: '#4a5568',
+            4: '#2d3748',
+            8: '#2c5282',
+            16: '#2b6cb0',
+            32: '#005b9f',
+            64: '#0083B0',
+            128: '#00b4d8',
+            256: '#1abc9c',
+            512: '#16a085',
+            1024: '#f39c12',
+            2048: '#e74c3c'
+        };
+
+        function addRandomTile() {
+            const emptyCells = [];
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (board[i][j] === 0) {
+                        emptyCells.push({row: i, col: j});
+                    }
+                }
+            }
+            
+            if (emptyCells.length > 0) {
+                const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[randomCell.row][randomCell.col] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function updateDisplay() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = board[i][j] || '';
+                    cell.style.backgroundColor = tileColors[board[i][j]] || tileColors[0];
+                    boardElement.appendChild(cell);
+                }
+            }
+            
+            document.getElementById('score').textContent = score;
+        }
+
+        let soundOn = true;
+        const moveS = new Audio('assets/move.wav');
+        const mergeS = new Audio('assets/merge.wav');
+        const play = a => { if (soundOn) { try { a.currentTime = 0; a.play(); } catch(_) {} } };
+        document.getElementById('sound').addEventListener('change', e => soundOn = e.target.checked);
+
+        // Mark if a merge happened in the last move
+        let mergeHappened = false;
+        function slide(row) {
+            const filtered = row.filter(val => val !== 0);
+            const merged = [];
+            let i = 0; let didMerge = false;
+            while (i < filtered.length) {
+                if (i < filtered.length - 1 && filtered[i] === filtered[i + 1]) {
+                    merged.push(filtered[i] * 2);
+                    score += filtered[i] * 2;
+                    i += 2;
+                    didMerge = true;
+                } else {
+                    merged.push(filtered[i]);
+                    i++;
+                }
+            }
+            while (merged.length < 4) merged.push(0);
+            mergeHappened = mergeHappened || didMerge;
+            return merged;
+        }
+
+        function move(direction) {
+            let moved = false;
+            const newBoard = board.map(row => [...row]);
+            
+            if (direction === 'left') {
+                for (let i = 0; i < 4; i++) {
+                    const newRow = slide(board[i]);
+                    if (newRow.join('') !== board[i].join('')) moved = true;
+                    newBoard[i] = newRow;
+                }
+            } else if (direction === 'right') {
+                for (let i = 0; i < 4; i++) {
+                    const reversed = [...board[i]].reverse();
+                    const newRow = slide(reversed).reverse();
+                    if (newRow.join('') !== board[i].join('')) moved = true;
+                    newBoard[i] = newRow;
+                }
+            } else if (direction === 'up') {
+                for (let j = 0; j < 4; j++) {
+                    const column = [board[0][j], board[1][j], board[2][j], board[3][j]];
+                    const newColumn = slide(column);
+                    if (newColumn.join('') !== column.join('')) moved = true;
+                    for (let i = 0; i < 4; i++) {
+                        newBoard[i][j] = newColumn[i];
+                    }
+                }
+            } else if (direction === 'down') {
+                for (let j = 0; j < 4; j++) {
+                    const column = [board[3][j], board[2][j], board[1][j], board[0][j]];
+                    const newColumn = slide(column);
+                    if (newColumn.join('') !== column.join('')) moved = true;
+                    for (let i = 0; i < 4; i++) {
+                        newBoard[3-i][j] = newColumn[i];
+                    }
+                }
+            }
+            
+            if (moved) {
+                board = newBoard;
+                addRandomTile();
+                updateDisplay();
+                play(moveS);
+                
+                if (mergeHappened) play(mergeS);
+                mergeHappened = false;
+                
+                if (checkWin()) {
+                    alert('You Win!');
+                } else if (checkGameOver()) {
+                    alert('Game Over!');
+                }
+            }
+        }
+
+        function checkWin() {
+            return board.some(row => row.some(cell => cell === 2048));
+        }
+
+        function checkGameOver() {
+            // Check for empty cells
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (board[i][j] === 0) return false;
+                }
+            }
+            
+            // Check for possible merges
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const current = board[i][j];
+                    if ((i < 3 && board[i + 1][j] === current) ||
+                        (j < 3 && board[i][j + 1] === current)) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        function initGame() {
+            board = Array(4).fill().map(() => Array(4).fill(0));
+            score = 0;
+            addRandomTile();
+            addRandomTile();
+            updateDisplay();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    move('left');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    move('right');
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    move('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    move('down');
+                    break;
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>

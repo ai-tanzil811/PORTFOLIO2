@@ -98,3 +98,15 @@ The portfolio is designed to work on all screen sizes:
 <p align="center">
   Made with ❤️ by <a href="https://github.com/ai-tanzil811">ai-tanzil811</a>
 </p>
+
+## 🕹 Games
+
+You can play the built-in games from the site’s GAMES modal, or open the standalone pages directly:
+
+- Snake: game/game-snake.html
+- Pong: game/game-pong.html
+- Breakout: game/game-breakout.html
+- Tic‑Tac‑Toe: game/game-tictactoe.html
+- 2048: game/game-2048.html
+
+Tip: Open index.html, click GAMES in the header, then select a title. Each game also works standalone in a new tab.

@@ -28,6 +28,7 @@ jQuery(document).ready(function () {
     
     
     initMobileMenu();
+    initEmailPopup();
 });
 
 function initMobileMenu() {
@@ -200,9 +201,7 @@ function initModals() {
             e.preventDefault();
             const modalId = this.getAttribute('data-modal');
             const modal = document.getElementById(modalId);
-            if (modal) {
-                openModal(modal);
-            }
+            if (modal) openModal(modal);
         });
     });
     
@@ -217,9 +216,7 @@ function initModals() {
     
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal(this);
-            }
+            if (e.target === this) closeModal(this);
         });
     });
     
@@ -227,9 +224,7 @@ function initModals() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const activeModal = document.querySelector('.modal-overlay.active');
-            if (activeModal) {
-                closeModal(activeModal);
-            }
+            if (activeModal) closeModal(activeModal);
         }
     });
 }
@@ -292,3 +287,18 @@ document.addEventListener('DOMContentLoaded', function() {
         initModals();
     }, 100);
 });
+
+function initEmailPopup() {
+    const emailBox = document.querySelector('.email-box');
+    const emailPopup = emailBox ? emailBox.querySelector('.email-popup') : null;
+    if (!emailBox || !emailPopup) return;
+
+    emailBox.addEventListener('mouseenter', function () {
+        emailPopup.style.opacity = '1';
+        emailPopup.style.visibility = 'visible';
+    });
+    emailBox.addEventListener('mouseleave', function () {
+        emailPopup.style.opacity = '0';
+        emailPopup.style.visibility = 'hidden';
+    });
+}

@@ -1,0 +1,3 @@
+body { background: #111; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+#ttt-board { display: grid; grid-template: repeat(3,80px)/repeat(3,80px); gap: 5px; }
+.ttt-cell { background:#222; border:2px solid #00E15C; font-size:2.5rem; color:#72F9A1; display:flex; align-items:center; justify-content:center; cursor:pointer; }
