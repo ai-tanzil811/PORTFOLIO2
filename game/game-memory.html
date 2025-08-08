@@ -1,53 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Memory Match</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Match - Asset Enhanced</title>
   <link rel="stylesheet" href="game-common.css">
 </head>
 <body>
-  <div class="game-container">
-    <div class="score">Moves: <span id="moves">0</span></div>
-    <div class="memory-board" id="memory-board"></div>
-    <button class="restart" onclick="initMemory()">Restart</button>
-    <div class="instructions">Click cards to flip and match pairs</div>
+  <div class="audio-controls">
+    <button class="audio-btn" id="music-toggle" title="Toggle Music">🎵</button>
+    <button class="audio-btn" id="sfx-toggle" title="Toggle SFX">🔊</button>
   </div>
+  
+  <div class="game-container">
+    <div class="score">
+      Moves: <span id="moves">0</span> | 
+      Matches: <span id="matches">0</span>/8
+    </div>
+    
+    <div class="controls">
+      <label>
+        Difficulty:
+        <select id="difficulty">
+          <option value="easy">Easy (3x4)</option>
+          <option value="normal" selected>Normal (4x4)</option>
+          <option value="hard">Hard (5x4)</option>
+        </select>
+      </label>
+      <label>
+        Card Set:
+        <select id="cardSet">
+          <option value="emoji">Emojis</option>
+          <option value="rogues">Rogues</option>
+          <option value="items">Items</option>
+        </select>
+      </label>
+    </div>
+    
+    <div class="memory-board" id="memory-board"></div>
+    <button class="restart" onclick="initMemory()">New Game</button>
+    <div class="instructions">Click cards to flip and match pairs. Use different card sets and difficulties!</div>
+  </div>
+
   <script>
-    const icons = ['🍎','🍌','🍇','🍉','🍒','🍋','🍓','🥝'];
+    // Card sets using available assets
+    const cardSets = {
+      emoji: ['🍎','🍌','🍇','🍉','🍒','🍋','🍓','🥝','🍊','🥭','🍑','🥥','🥑','🍆','🌽','🥕','🥒','🥬','🥦','🍄'],
+      rogues: Array.from({length: 20}, (_, i) => `32rogues/rogues-${i}.png`),
+      items: Array.from({length: 20}, (_, i) => `32rogues/items-${i}.png`)
+    };
+
     let board = [], flipped = [], matched = 0, moves = 0;
-    function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
-    function render() {
-      const el = document.getElementById('memory-board');
-      el.innerHTML = '';
-      board.forEach((card,i)=>{
-        const d = document.createElement('div');
-        d.className = 'memory-card'+(card.flipped||card.matched?' flipped':'');
-        d.textContent = card.flipped||card.matched ? card.icon : '';
-        d.onclick = ()=>flip(i);
-        el.appendChild(d);
-      });
-      document.getElementById('moves').textContent = moves;
+    let soundOn = true, musicOn = true;
+    let backgroundMusic, currentDifficulty = 'normal';
+
+    // Enhanced WebAudio with multiple sounds
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AC();
+    
+    function createTone(freq, dur, type = 'sine', vol = 0.1) {
+      if (!soundOn) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = type;
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + dur);
     }
-    function flip(i){
-      if(board[i].flipped||board[i].matched||flipped.length===2)return;
-      board[i].flipped = true; flipped.push(i); render();
-      if(flipped.length===2){
+
+    // Sound effects
+    const sounds = {
+      flip: () => createTone(800, 0.1, 'square'),
+      match: () => {
+        createTone(600, 0.1, 'sine');
+        setTimeout(() => createTone(800, 0.1, 'sine'), 100);
+      },
+      win: () => {
+        [523, 659, 784, 1047].forEach((freq, i) => 
+          setTimeout(() => createTone(freq, 0.2, 'sine'), i * 150)
+        );
+      },
+      newGame: () => createTone(440, 0.2, 'triangle')
+    };
+
+    // Background music setup
+    function initMusic() {
+      if (musicOn) {
+        backgroundMusic = new Audio('assets/Sketchbook 2024-11-07.ogg');
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.3;
+        backgroundMusic.play().catch(() => console.log('Music autoplay blocked'));
+      }
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getDifficulty() {
+      const diff = document.getElementById('difficulty').value;
+      switch(diff) {
+        case 'easy': return { rows: 3, cols: 4, pairs: 6 };
+        case 'hard': return { rows: 4, cols: 5, pairs: 10 };
+        default: return { rows: 4, cols: 4, pairs: 8 };
+      }
+    }
+
+    function renderCard(card, index) {
+      const isFlipped = card.flipped || card.matched;
+      const cardDiv = document.createElement('div');
+      cardDiv.className = `memory-card ${isFlipped ? 'flipped' : ''}`;
+      cardDiv.dataset.index = index;
+      
+      if (isFlipped) {
+        if (card.icon.includes('.png')) {
+          const img = document.createElement('img');
+          img.src = `assets/${card.icon}`;
+          img.alt = 'card';
+          img.draggable = false;
+          img.onerror = () => img.textContent = '🎮'; // Fallback
+          cardDiv.appendChild(img);
+        } else {
+          cardDiv.textContent = card.icon;
+        }
+      }
+      
+      cardDiv.onclick = () => flip(index);
+      return cardDiv;
+    }
+
+    function render() {
+      const boardEl = document.getElementById('memory-board');
+      const { rows, cols } = getDifficulty();
+      
+      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      boardEl.innerHTML = '';
+      
+      board.forEach((card, i) => {
+        boardEl.appendChild(renderCard(card, i));
+      });
+      
+      document.getElementById('moves').textContent = moves;
+      document.getElementById('matches').textContent = matched / 2;
+    }
+
+    function flip(index) {
+      if (board[index].flipped || board[index].matched || flipped.length === 2) return;
+      
+      board[index].flipped = true;
+      flipped.push(index);
+      sounds.flip();
+      render();
+
+      if (flipped.length === 2) {
         moves++;
-        if(board[flipped[0]].icon===board[flipped[1]].icon){
-          board[flipped[0]].matched=board[flipped[1]].matched=true;
-          matched+=2; flipped=[];
-          if(matched===16)setTimeout(()=>alert('You win!'),300);
-        }else{
-          setTimeout(()=>{board[flipped[0]].flipped=board[flipped[1]].flipped=false;flipped=[];render();},800);
+        const [first, second] = flipped;
+        
+        if (board[first].icon === board[second].icon) {
+          // Match found
+          board[first].matched = board[second].matched = true;
+          matched += 2;
+          flipped = [];
+          sounds.match();
+          
+          // Score animation
+          document.getElementById('matches').classList.add('score-animate');
+          setTimeout(() => {
+            document.getElementById('matches').classList.remove('score-animate');
+          }, 300);
+          
+          if (matched === getDifficulty().pairs * 2) {
+            setTimeout(() => {
+              sounds.win();
+              alert(`Congratulations! You won in ${moves} moves!`);
+            }, 500);
+          }
+        } else {
+          // No match
+          setTimeout(() => {
+            board[first].flipped = board[second].flipped = false;
+            flipped = [];
+            render();
+          }, 1000);
         }
       }
     }
-    function initMemory(){
-      let cards = icons.concat(icons).map(icon=>({icon,flipped:false,matched:false}));
-      shuffle(cards); board=cards; flipped=[]; matched=0; moves=0; render();
+
+    function initMemory() {
+      const { pairs } = getDifficulty();
+      const cardSet = document.getElementById('cardSet').value;
+      const icons = cardSets[cardSet];
+      
+      // Create pairs
+      const selectedIcons = shuffle(icons).slice(0, pairs);
+      const cardPairs = selectedIcons.concat(selectedIcons);
+      
+      board = shuffle(cardPairs).map(icon => ({
+        icon,
+        flipped: false,
+        matched: false
+      }));
+      
+      flipped = [];
+      matched = 0;
+      moves = 0;
+      sounds.newGame();
+      render();
     }
-    initMemory();
+
+    // Event listeners
+    document.getElementById('difficulty').addEventListener('change', initMemory);
+    document.getElementById('cardSet').addEventListener('change', initMemory);
+    
+    document.getElementById('music-toggle').addEventListener('click', () => {
+      musicOn = !musicOn;
+      if (musicOn) {
+        initMusic();
+      } else if (backgroundMusic) {
+        backgroundMusic.pause();
+      }
+    });
+    
+    document.getElementById('sfx-toggle').addEventListener('click', () => {
+      soundOn = !soundOn;
+      document.getElementById('sfx-toggle').textContent = soundOn ? '🔊' : '🔇';
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initMusic();
+      initMemory();
+    });
   </script>
 </body>
 </html>

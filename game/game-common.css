@@ -1,138 +1,290 @@
+/* Universal responsive game styling with asset integration */
 body {
   margin: 0;
   padding: 0;
-  background: #1a202c;
+  background: #1a202c url('assets/SpaceBackground/BackgroundGenerator/stars.png');
+  background-size: cover;
+  background-attachment: fixed;
   color: #e2e8f0;
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: 'Inter', 'VALORANT', Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  overflow-x: hidden;
 }
+
 .game-container {
   width: 100%;
-  max-width: 480px;
+  max-width: min(95vw, 600px);
   margin: 0 auto;
-  padding: 16px;
+  padding: clamp(8px, 2vw, 20px);
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: clamp(8px, 2vw, 16px);
 }
+
+/* Responsive canvas and game boards */
 canvas, .board, .memory-board {
   width: 100%;
-  max-width: 400px;
-  background: #2d3748;
+  max-width: min(90vw, 500px);
+  background: #2d3748 url('assets/SpaceBackground/GUI/transparent.png');
   border-radius: 12px;
-  box-shadow: 0 2px 16px #0004;
+  box-shadow: 0 4px 20px rgba(0, 225, 92, 0.3);
   margin: 0 auto;
-}
-canvas {
   border: 2px solid #00E15C;
+}
+
+canvas {
   display: block;
   height: auto;
-  max-height: 400px;
+  aspect-ratio: 4/3;
+  max-height: min(70vh, 400px);
 }
+
+/* Game UI elements */
 .status, .score, .instructions, .controls {
-  margin: 8px 0;
+  margin: clamp(4px, 1vw, 12px) 0;
   text-align: center;
+  padding: 0 10px;
 }
+
 .status, .score {
-  font-size: 1.2rem;
+  font-size: clamp(16px, 4vw, 24px);
   color: #00E15C;
+  text-shadow: 0 0 10px rgba(0, 225, 92, 0.5);
+  font-weight: bold;
 }
+
 .instructions {
   color: #a0aec0;
-  font-size: 1rem;
+  font-size: clamp(12px, 3vw, 16px);
+  line-height: 1.4;
 }
+
 .controls {
   display: flex;
-  gap: 12px;
+  gap: clamp(8px, 2vw, 16px);
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 10px;
+  background: rgba(16, 43, 30, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 225, 92, 0.3);
 }
+
 .controls label {
   color: #a0aec0;
-  font-size: 0.95rem;
+  font-size: clamp(12px, 2.5vw, 14px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+
 .controls select, .controls input[type="checkbox"] {
   accent-color: #00E15C;
+  transform: scale(clamp(0.8, 2vw, 1.2));
 }
+
+/* Enhanced buttons */
 button, .restart {
-  margin-top: 12px;
-  padding: 10px 20px;
-  background: #00E15C;
+  margin: clamp(8px, 2vw, 16px) auto;
+  padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
+  background: linear-gradient(145deg, #00E15C, #72F9A1);
   color: #1a202c;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: clamp(12px, 3vw, 16px);
   font-weight: bold;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 225, 92, 0.4);
 }
+
 button:hover, .restart:hover {
-  background: #72F9A1;
+  background: linear-gradient(145deg, #72F9A1, #00E15C);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 225, 92, 0.6);
 }
-.board, .memory-board {
-  display: grid;
-  gap: 5px;
-  margin: 16px 0;
-}
+
+/* Game boards - responsive grids */
 .board {
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: clamp(3px, 1vw, 8px);
   width: 100%;
-  max-width: 320px;
+  max-width: min(80vw, 350px);
+  aspect-ratio: 1;
+  padding: clamp(8px, 2vw, 16px);
 }
+
 .cell {
-  width: 100px;
-  height: 100px;
   background: #4a5568;
   border: 2px solid #00E15C;
-  border-radius: 8px;
+  border-radius: clamp(4px, 1vw, 8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.2rem;
+  font-size: clamp(24px, 8vw, 48px);
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
   user-select: none;
+  aspect-ratio: 1;
 }
+
 .cell:hover {
   background: #718096;
+  transform: scale(1.05);
 }
+
 .memory-board {
+  display: grid;
   grid-template-columns: repeat(4, 1fr);
+  gap: clamp(3px, 1vw, 6px);
   width: 100%;
-  max-width: 400px;
+  max-width: min(85vw, 400px);
+  padding: clamp(8px, 2vw, 16px);
 }
+
 .memory-card {
-  width: 80px;
-  height: 80px;
   background: #4a5568;
   border: 2px solid #00E15C;
-  border-radius: 8px;
+  border-radius: clamp(4px, 1vw, 8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: clamp(16px, 4vw, 28px);
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
   user-select: none;
+  aspect-ratio: 1;
   position: relative;
+  overflow: hidden;
 }
+
+.memory-card img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
 .memory-card.flipped, .memory-card.matched {
-  background: #00E15C;
+  background: linear-gradient(145deg, #00E15C, #72F9A1);
   color: #1a202c;
+  transform: rotateY(180deg);
 }
-@media (max-width: 600px) {
-  .game-container, .board, .memory-board, canvas {
-    max-width: 98vw;
+
+/* Audio controls */
+.audio-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+
+.audio-btn {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 225, 92, 0.2);
+  border: 1px solid #00E15C;
+  border-radius: 50%;
+  color: #00E15C;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.audio-btn:hover {
+  background: rgba(0, 225, 92, 0.4);
+  transform: scale(1.1);
+}
+
+/* Enhanced responsive breakpoints */
+@media (max-width: 768px) {
+  .game-container {
+    padding: 12px;
+    max-width: 95vw;
   }
-  .cell, .memory-card {
-    width: 22vw;
-    height: 22vw;
-    font-size: 1.5rem;
+  
+  canvas {
+    max-height: 60vh;
   }
+  
+  .controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .memory-board {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .board {
+    max-width: 90vw;
+  }
+  
+  .cell {
+    font-size: clamp(20px, 6vw, 32px);
+  }
+  
+  .memory-card {
+    font-size: clamp(12px, 3vw, 20px);
+  }
+  
+  .audio-controls {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .audio-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  canvas {
+    max-height: 80vh;
+    max-width: 60vw;
+  }
+  
+  .controls {
+    flex-direction: column;
+    max-width: 30vw;
+  }
+}
+
+/* Animation keyframes */
+@keyframes cardFlip {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(180deg); }
+}
+
+@keyframes scoreIncrease {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #72F9A1; }
+  100% { transform: scale(1); }
+}
+
+.score-animate {
+  animation: scoreIncrease 0.3s ease;
 }

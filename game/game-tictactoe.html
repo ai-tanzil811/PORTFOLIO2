@@ -29,18 +29,17 @@
 
         let soundOn = true;
         document.getElementById('sound').addEventListener('change', e => soundOn = e.target.checked);
+        const diffSel = document.getElementById('difficulty'); // FIX: define difficulty selector
 
-        // WebAudio SFX (replaces external audio files)
+        // WebAudio SFX
         const AC = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AC();
         function sfx(freq = 440, dur = 0.1, type = 'square', gain = 0.05) {
           if (!soundOn) return;
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          o.type = type; o.frequency.value = freq;
-          g.gain.value = gain;
-          o.connect(g); g.connect(audioCtx.destination);
-          o.start(); setTimeout(()=>{ o.stop(); }, dur*1000);
+          const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+          o.type = type; o.frequency.value = freq; g.gain.value = gain;
+          o.connect(g); g.connect(audioCtx.destination); o.start();
+          setTimeout(()=>o.stop(), dur*1000);
         }
 
         function createBoard() {
@@ -111,7 +110,7 @@
 
         function aiTurn() {
             if (!gameActive) return;
-            const d = diffSel.value;
+            const d = diffSel.value; // FIX: use defined diffSel
             let idx;
             if (d === 'easy') {
                 const e = empties(board);
@@ -163,6 +162,7 @@
         createBoard();
     </script>
 </body>
+</html>
 </html>
             let idx;
             if (d === 'easy') {

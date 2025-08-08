@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Breakout Game - Phaser Edition</title>
+  <link rel="stylesheet" href="game-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <script src="game-phaser-loader.js"></script>
+</head>
+<body>
+  <div class="game-container">
+    <div class="controls">
+      <label>Difficulty:
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="sound" checked> Sound</label>
+    </div>
+    <div class="score">Score: <span id="score">0</span> | Lives: <span id="lives">3</span></div>
+    <div id="phaser-game"></div>
+    <div class="instructions">Use arrow keys to control the paddle</div>
+  </div>
+
+  <script>
+    // Game scenes
+    class MainScene extends Phaser.Scene {
+      constructor() {
+        super('MainScene');
+        this.score = 0;
+        this.lives = 3;
+        this.difficulty = 'normal';
+        this.soundEnabled = true;
+        this.gameOver = false;
+      }
+
+      preload() {
+        // Load assets
+        this.load.image('paddle', GameAssets.paths.paddle);
+        this.load.image('background', GameAssets.paths.bg);
+        this.soundFX = new SoundFX(this);
+        this.soundFX.preload();
+        
+        // Listen for difficulty and sound changes
+        const difficultySelect = document.getElementById('difficulty');
+        difficultySelect.addEventListener('change', () => {
+          this.difficulty = difficultySelect.value;
+          this.updateDifficulty();
+        });
+        
+        const soundCheckbox = document.getElementById('sound');
+        soundCheckbox.addEventListener('change', () => {
+          this.soundEnabled = soundCheckbox.checked;
+          this.soundFX.setEnabled(this.soundEnabled);
+        });
+      }
+
+      create() {
+        // Create background
+        this.add.image(200, 150, 'background').setDisplaySize(400, 300).setAlpha(0.3);
+        
+        // Create game elements
+        GameAssets.createTextures(this);
+        this.soundFX.create();
+        
+        // Create the paddle
+        this.paddle = this.physics.add.image(200, 280, 'paddle')
+          .setImmovable(true)
+          .setDisplaySize(60, 10);
+        
+        // Create the ball
+        this.ball = this.physics.add.image(200, 250, 'ball');
+        this.ball.setCollideWorldBounds(true);
+        this.ball.setBounce(1);
+        
+        // Create bricks
+        this.bricks = this.physics.add.staticGroup();
+        this.createBricks();
+        
+        // Setup collisions
+        this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
+        this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
+        
+        // Setup inputs
+        this.cursors = this.input.keyboard.createCursorKeys();
+        
+        // Start the ball
+        this.resetBall();
+        
+        // Update difficulty
+        this.updateDifficulty();
+        
+        // Update score display
+        this.updateHUD();
+      }
+
+      update() {
+        if (this.gameOver) return;
+        
+        // Move the paddle with arrow keys
+        if (this.cursors.left.isDown) {
+          this.paddle.x -= 7;
+        } else if (this.cursors.right.isDown) {
+          this.paddle.x += 7;
+        }
+        
+        // Keep paddle within bounds
+        this.paddle.x = Phaser.Math.Clamp(this.paddle.x, 30, 370);
+        
+        // Check if ball is out of bounds
+        if (this.ball.y > 300) {
+          this.lives--;
+          this.updateHUD();
+          
+          if (this.lives <= 0) {
+            this.gameOver = true;
+            this.soundFX.play('lose');
+            this.showGameOver();
+          } else {
+            this.resetBall();
+          }
+        }
+      }
+
+      createBricks() {
+        const colors = [0xf6ad55, 0x4fd1c7, 0xb794f6, 0xe879f9, 0x48bb78];
+        
+        for (let row = 0; row < 5; row++) {
+          for (let col = 0; col < 8; col++) {
+            const brick = this.bricks.create(50 * col + 25, 30 + row * 20, 'brick')
+              .setTint(colors[row])
+              .setDisplaySize(45, 15);
+              
+            // Store original position for animations
+            brick.setData('row', row);
+            brick.setData('col', col);
+          }
+        }
+      }
+
+      hitBrick(ball, brick) {
+        this.soundFX.play('hit');
+        this.tweens.add({
+          targets: brick,
+          alpha: 0,
+          scaleX: 1.2,
+          scaleY: 1.2,
+          duration: 200,
+          onComplete: () => brick.destroy()
+        });
+        
+        this.score += 10;
+        this.updateHUD();
+        
+        // Check if all bricks are gone
+        if (this.bricks.countActive() === 0) {
+          this.soundFX.play('win');
+          this.ball.setVelocity(0, 0);
+          this.gameOver = true;
+          
+          this.time.delayedCall(1000, () => {
+            this.scene.restart();
+          });
+        }
+      }
+
+      hitPaddle(ball, paddle) {
+        this.soundFX.play('blip');
+        
+        // Calculate bounce angle based on where ball hit the paddle
+        const diff = ball.x - paddle.x;
+        ball.setVelocityX(10 * diff);
+      }
+
+      resetBall() {
+        this.ball.setPosition(200, 250);
+        const speed = this.getDifficultyValue(3, 4, 5);
+        this.ball.setVelocity(Phaser.Math.Between(-speed, speed) * 40, -speed * 40);
+      }
+
+      updateDifficulty() {
+        const ballSpeed = this.getDifficultyValue(3, 4, 5);
+        if (!this.gameOver) {
+          // Update ball speed based on current velocity direction
+          const currentVelX = this.ball.body.velocity.x;
+          const currentVelY = this.ball.body.velocity.y;
+          const dirX = Math.sign(currentVelX);
+          const dirY = Math.sign(currentVelY);
+          
+          this.ball.setVelocity(
+            dirX * ballSpeed * 40,
+            dirY * ballSpeed * 40
+          );
+        }
+      }
+
+      getDifficultyValue(easy, normal, hard) {
+        switch (this.difficulty) {
+          case 'easy': return easy;
+          case 'hard': return hard;
+          default: return normal;
+        }
+      }
+
+      updateHUD() {
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('lives').textContent = this.lives;
+      }
+
+      showGameOver() {
+        this.add.rectangle(200, 150, 300, 200, 0x000000, 0.7).setOrigin(0.5);
+        this.add.text(200, 120, 'GAME OVER', { 
+          fontFamily: 'Arial', 
+          fontSize: '32px', 
+          color: '#ff0000' 
+        }).setOrigin(0.5);
+        
+        this.add.text(200, 170, `Score: ${this.score}`, { 
+          fontFamily: 'Arial', 
+          fontSize: '24px', 
+          color: '#ffffff' 
+        }).setOrigin(0.5);
+        
+        const restartButton = this.add.text(200, 220, 'Restart', { 
+          fontFamily: 'Arial', 
+          fontSize: '24px', 
+          color: '#00E15C',
+          backgroundColor: '#333333',
+          padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive();
+        
+        restartButton.on('pointerdown', () => {
+          this.scene.restart();
+        });
+      }
+    }
+
+    // Initialize the game
+    const config = {
+      scene: [MainScene],
+      parent: 'phaser-game',
+    };
+    
+    const game = GameAssets.initPhaser(config);
+  </script>
+</body>
+</html>

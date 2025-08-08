@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Racer</title>
+  <link rel="stylesheet" href="game-common.css">
+</head>
+<body>
+  <div class="audio-controls">
+    <button class="audio-btn" id="music-toggle" title="Toggle Music">🎵</button>
+    <button class="audio-btn" id="sfx-toggle" title="Toggle SFX">🔊</button>
+  </div>
+  
+  <div class="game-container">
+    <div class="score">
+      Speed: <span id="speed">0</span> km/h | 
+      Score: <span id="score">0</span> | 
+      Distance: <span id="distance">0</span>m
+    </div>
+    
+    <div class="controls">
+      <label>
+        Ship:
+        <select id="shipType">
+          <option value="classic">Classic</option>
+          <option value="fighter" selected>Fighter</option>
+          <option value="cruiser">Cruiser</option>
+        </select>
+      </label>
+      <label>
+        Track:
+        <select id="trackType">
+          <option value="space" selected>Deep Space</option>
+          <option value="nebula">Nebula</option>
+          <option value="asteroid">Asteroid Field</option>
+        </select>
+      </label>
+    </div>
+    
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    
+    <div class="instructions">
+      Use A/D or Arrow Keys to steer. Avoid obstacles and collect power-ups!
+      <br>Touch/tilt controls available on mobile.
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Game state
+    let gameRunning = true;
+    let soundOn = true, musicOn = true;
+    let backgroundMusic;
+    
+    // Player ship
+    const ship = {
+      x: canvas.width / 2 - 25,
+      y: canvas.height - 80,
+      width: 50,
+      height: 60,
+      speed: 0,
+      maxSpeed: 8,
+      steering: 0
+    };
+    
+    // Game objects
+    let obstacles = [];
+    let powerUps = [];
+    let stars = [];
+    let particles = [];
+    let score = 0;
+    let distance = 0;
+    let gameSpeed = 2;
+    
+    // Assets
+    const assets = {
+      starfield: null,
+      shipSprite: null
+    };
+    
+    // Load space background assets
+    function loadAssets() {
+      const starfieldImg = new Image();
+      starfieldImg.onload = () => {
+        assets.starfield = starfieldImg;
+        console.log('Loaded starfield');
+      };
+      starfieldImg.onerror = () => console.log('Failed to load starfield');
+      starfieldImg.src = 'assets/SpaceBackground/BackgroundGenerator/stars.png';
+    }
+    
+    // Sound system
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AC();
+    
+    function createTone(freq, dur, type = 'sine', vol = 0.05) {
+      if (!soundOn) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = type;
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + dur);
+    }
+    
+    const sounds = {
+      engine: () => createTone(100 + ship.speed * 10, 0.1, 'sawtooth', 0.02),
+      collect: () => createTone(800, 0.1, 'square'),
+      crash: () => {
+        createTone(150, 0.5, 'sawtooth', 0.3);
+        // Add explosion particles
+        for (let i = 0; i < 20; i++) {
+          particles.push({
+            x: ship.x + ship.width/2,
+            y: ship.y + ship.height/2,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            life: 30,
+            color: `hsl(${Math.random() * 60}, 100%, 50%)`
+          });
+        }
+      },
+      boost: () => createTone(400, 0.2, 'sine')
+    };
+    
+    // Initialize background music
+    function initMusic() {
+      if (musicOn) {
+        backgroundMusic = new Audio('assets/Sketchbook 2024-12-04.ogg');
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.4;
+        backgroundMusic.play().catch(() => console.log('Music autoplay blocked'));
+      }
+    }
+    
+    // Initialize stars
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < 100; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          speed: Math.random() * 3 + 1
+        });
+      }
+    }
+    
+    // Spawn obstacle
+    function spawnObstacle() {
+      const types = ['asteroid', 'debris', 'mine'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      
+      obstacles.push({
+        x: Math.random() * (canvas.width - 40),
+        y: -40,
+        width: 40,
+        height: 40,
+        speed: gameSpeed + Math.random() * 2,
+        type: type,
+        rotation: 0
+      });
+    }
+    
+    // Spawn power-up
+    function spawnPowerUp() {
+      const types = ['speed', 'shield', 'score'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      
+      powerUps.push({
+        x: Math.random() * (canvas.width - 30),
+        y: -30,
+        width: 30,
+        height: 30,
+        speed: gameSpeed,
+        type: type,
+        pulse: 0
+      });
+    }
+    
+    // Collision detection
+    function checkCollision(rect1, rect2) {
+      return rect1.x < rect2.x + rect2.width &&
+             rect1.x + rect1.width > rect2.x &&
+             rect1.y < rect2.y + rect2.height &&
+             rect1.y + rect1.height > rect2.y;
+    }
+    
+    // Input handling
+    const keys = {};
+    
+    document.addEventListener('keydown', (e) => {
+      keys[e.key.toLowerCase()] = true;
+      keys[e.key] = true;
+    });
+    
+    document.addEventListener('keyup', (e) => {
+      keys[e.key.toLowerCase()] = false;
+      keys[e.key] = false;
+    });
+    
+    // Touch/tilt controls for mobile
+    let tiltX = 0;
+    
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        tiltX = e.gamma || 0; // Left/right tilt
+        // Normalize to -1 to 1 range
+        tiltX = Math.max(-30, Math.min(30, tiltX)) / 30;
+      });
+    }
+    
+    // Touch steering
+    let touchX = 0;
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      touchX = e.touches[0].clientX;
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const deltaX = e.touches[0].clientX - touchX;
+      ship.steering = Math.max(-1, Math.min(1, deltaX / 100));
+    });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      ship.steering = 0;
+    });
+    
+    // Game update
+    function update() {
+      if (!gameRunning) return;
+      
+      // Ship controls
+      ship.steering = 0;
+      if (keys['a'] || keys['ArrowLeft']) ship.steering = -1;
+      if (keys['d'] || keys['ArrowRight']) ship.steering = 1;
+      
+      // Add tilt control if available
+      if (Math.abs(tiltX) > 0.1) {
+        ship.steering = tiltX;
+      }
+      
+      // Update ship position
+      ship.x += ship.steering * 6;
+      ship.x = Math.max(0, Math.min(canvas.width - ship.width, ship.x));
+      
+      // Increase speed gradually
+      ship.speed = Math.min(ship.maxSpeed, ship.speed + 0.01);
+      gameSpeed = 2 + ship.speed * 0.5;
+      
+      // Engine sound
+      if (Math.random() < 0.1) sounds.engine();
+      
+      // Update distance and score
+      distance += gameSpeed;
+      score += Math.floor(gameSpeed);
+      
+      // Update stars
+      stars.forEach(star => {
+        star.y += star.speed * gameSpeed;
+        if (star.y > canvas.height) {
+          star.y = -5;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+      
+      // Update obstacles
+      obstacles.forEach((obstacle, index) => {
+        obstacle.y += obstacle.speed;
+        obstacle.rotation += 0.05;
+        
+        if (obstacle.y > canvas.height) {
+          obstacles.splice(index, 1);
+          score += 10;
+        }
+        
+        // Check collision with ship
+        if (checkCollision(ship, obstacle)) {
+          sounds.crash();
+          gameRunning = false;
+          setTimeout(() => {
+            alert(`Game Over! Final Score: ${score}\nDistance: ${Math.floor(distance)}m`);
+          }, 100);
+        }
+      });
+      
+      // Update power-ups
+      powerUps.forEach((powerUp, index) => {
+        powerUp.y += powerUp.speed;
+        powerUp.pulse += 0.1;
+        
+        if (powerUp.y > canvas.height) {
+          powerUps.splice(index, 1);
+        }
+        
+        // Check collection
+        if (checkCollision(ship, powerUp)) {
+          sounds.collect();
+          
+          switch(powerUp.type) {
+            case 'speed':
+              ship.maxSpeed = Math.min(12, ship.maxSpeed + 1);
+              sounds.boost();
+              break;
+            case 'shield':
+              // Temporary invincibility could be added here
+              score += 50;
+              break;
+            case 'score':
+              score += 100;
+              break;
+          }
+          
+          powerUps.splice(index, 1);
+        }
+      });
+      
+      // Update particles
+      particles.forEach((particle, index) => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.life--;
+        
+        if (particle.life <= 0) {
+          particles.splice(index, 1);
+        }
+      });
+      
+      // Spawn new objects
+      if (Math.random() < 0.03 + score * 0.00001) spawnObstacle();
+      if (Math.random() < 0.005) spawnPowerUp();
+      
+      // Update UI
+      document.getElementById('speed').textContent = Math.floor(ship.speed * 50);
+      document.getElementById('score').textContent = score;
+      document.getElementById('distance').textContent = Math.floor(distance);
+    }
+    
+    // Render game
+    function draw() {
+      // Draw space background
+      if (assets.starfield) {
+        ctx.drawImage(assets.starfield, 0, 0, canvas.width, canvas.height);
+      } else {
+        // Fallback gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#000428');
+        gradient.addColorStop(1, '#004e92');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      
+      // Draw stars
+      stars.forEach(star => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.sin(Date.now() * 0.01 + star.x) * 0.3})`;
+        ctx.fillRect(star.x, star.y, star.size, star.size);
+      });
+      
+      // Draw obstacles
+      obstacles.forEach(obstacle => {
+        ctx.save();
+        ctx.translate(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
+        ctx.rotate(obstacle.rotation);
+        
+        switch(obstacle.type) {
+          case 'asteroid':
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(-obstacle.width/2, -obstacle.height/2, obstacle.width, obstacle.height);
+            break;
+          case 'debris':
+            ctx.fillStyle = '#696969';
+            ctx.fillRect(-obstacle.width/2, -obstacle.height/2, obstacle.width/2, obstacle.height);
+            ctx.fillRect(0, -obstacle.height/2, obstacle.width/2, obstacle.height);
+            break;
+          case 'mine':
+            ctx.fillStyle = '#FF4500';
+            ctx.beginPath();
+            ctx.arc(0, 0, obstacle.width/2, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+        }
+        ctx.restore();
+      });
+      
+      // Draw power-ups
+      powerUps.forEach(powerUp => {
+        const alpha = 0.7 + Math.sin(powerUp.pulse) * 0.3;
+        
+        switch(powerUp.type) {
+          case 'speed':
+            ctx.fillStyle = `rgba(0, 255, 255, ${alpha})`;
+            break;
+          case 'shield':
+            ctx.fillStyle = `rgba(0, 255, 0, ${alpha})`;
+            break;
+          case 'score':
+            ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+            break;
+        }
+        
+        ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+        
+        // Glow effect
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 10;
+        ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+        ctx.shadowBlur = 0;
+      });
+      
+      // Draw particles
+      particles.forEach(particle => {
+        ctx.fillStyle = particle.color;
+        ctx.globalAlpha = particle.life / 30;
+        ctx.fillRect(particle.x, particle.y, 3, 3);
+        ctx.globalAlpha = 1;
+      });
+      
+      // Draw ship
+      if (assets.shipSprite) {
+        ctx.drawImage(assets.shipSprite, ship.x, ship.y, ship.width, ship.height);
+      } else {
+        // Fallback ship
+        ctx.fillStyle = '#00E15C';
+        ctx.fillRect(ship.x, ship.y, ship.width, ship.height);
+        
+        // Ship details
+        ctx.fillStyle = '#72F9A1';
+        ctx.fillRect(ship.x + 10, ship.y + 10, 30, 40);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(ship.x + 20, ship.y + 5, 10, 15);
+      }
+      
+      // Engine trail
+      if (ship.speed > 0) {
+        for (let i = 0; i < 5; i++) {
+          ctx.fillStyle = `rgba(0, 150, 255, ${0.8 - i * 0.15})`;
+          ctx.fillRect(
+            ship.x + ship.width/2 - 5,
+            ship.y + ship.height + i * 8,
+            10,
+            8
+          );
+        }
+      }
+    }
+    
+    // Game loop
+    function gameLoop() {
+      update();
+      draw();
+      if (gameRunning) {
+        requestAnimationFrame(gameLoop);
+      }
+    }
+    
+    // Event listeners
+    document.getElementById('music-toggle').addEventListener('click', () => {
+      musicOn = !musicOn;
+      if (musicOn) {
+        initMusic();
+      } else if (backgroundMusic) {
+        backgroundMusic.pause();
+      }
+    });
+    
+    document.getElementById('sfx-toggle').addEventListener('click', () => {
+      soundOn = !soundOn;
+      document.getElementById('sfx-toggle').textContent = soundOn ? '🔊' : '🔇';
+    });
+    
+    document.getElementById('shipType').addEventListener('change', (e) => {
+      const shipType = e.target.value;
+      switch(shipType) {
+        case 'classic':
+          ship.maxSpeed = 6;
+          ship.width = 40;
+          break;
+        case 'cruiser':
+          ship.maxSpeed = 10;
+          ship.width = 60;
+          break;
+        default: // fighter
+          ship.maxSpeed = 8;
+          ship.width = 50;
+      }
+    });
+    
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAssets();
+      initMusic();
+      initStars();
+      gameLoop();
+    });
+  </script>
+</body>
+</html>

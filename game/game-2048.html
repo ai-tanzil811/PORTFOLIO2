@@ -201,66 +201,12 @@
     </script>
 </body>
 </html>
-        function checkGameOver() {
-            // Check for empty cells
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    if (board[i][j] === 0) return false;
-                }
-            }
-            
-            // Check for possible merges
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const current = board[i][j];
-                    if ((i < 3 && board[i + 1][j] === current) ||
-                        (j < 3 && board[i][j + 1] === current)) {
-                        return false;
-                    }
-                }
-            }
-            
-            return true;
-        }
-
-        function initGame() {
-            board = Array(4).fill().map(() => Array(4).fill(0));
-            score = 0;
-            addRandomTile();
-            addRandomTile();
-            updateDisplay();
-        }
-
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    move('left');
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    move('right');
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    move('up');
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    move('down');
-                    break;
-            }
-        });
-
-        initGame();
+        
+       
     </script>
 </body>
 </html>
-                    break;
-            }
-        });
-
-        initGame();
+               
     </script>
 </body>
 </html>

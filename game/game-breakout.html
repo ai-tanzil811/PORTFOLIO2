@@ -59,23 +59,32 @@
             }
         }
 
+        const paddleImg = new window.Image();
+        paddleImg.src = 'assets/bat.svg';
+        let paddleImgReady = false;
+        paddleImg.onload = () => { paddleImgReady = true; };
+
+        const brickImg = new window.Image();
+        brickImg.src = 'assets/bat.svg';
+        let brickImgReady = false;
+        brickImg.onload = () => { brickImgReady = true; };
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Paddle
+            if (paddleImgReady) ctx.drawImage(paddleImg, paddleX, 280, 60, 10);
+            else { ctx.fillStyle = "#00E15C"; ctx.fillRect(paddleX, 280, 60, 10); }
             
-            // Draw paddle
-            ctx.fillStyle = "#00E15C";
-            ctx.fillRect(paddleX, 280, 60, 10);
-            
-            // Draw ball
+            // Ball
             ctx.beginPath();
             ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
             ctx.fill();
             
-            // Draw bricks
+            // Bricks
             bricks.forEach(brick => {
                 if (!brick.destroyed) {
-                    ctx.fillStyle = "#f6ad55";
-                    ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                    if (brickImgReady) ctx.drawImage(brickImg, brick.x, brick.y, brick.width, brick.height);
+                    else { ctx.fillStyle = "#f6ad55"; ctx.fillRect(brick.x, brick.y, brick.width, brick.height); }
                 }
             });
             
@@ -139,37 +148,6 @@
             lives = d === 'easy' ? 5 : d === 'hard' ? 2 : 3;
             const speed = d === 'easy' ? 2 : d === 'hard' ? 4 : 3;
             ballDX = speed; ballDY = -speed;
-            paddleX = 170;
-        }
-        function resetBall() {
-            const d = diffSel.value;
-            const speed = d === 'easy' ? 2 : d === 'hard' ? 4 : 3;
-            ballX = canvas.width/2; ballY = canvas.height - 50;
-            ballDX = speed; ballDY = -speed; paddleX = 170;
-        }
-        applyDifficulty();
-
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    paddleX = Math.max(0, paddleX - 20);
-                    break;
-                case 'ArrowRight':
-                    paddleX = Math.min(canvas.width - 60, paddleX + 20);
-                    break;
-            }
-        });
-
-        gameLoop();
-  </script>
-</body>
-</html>
             paddleX = 170;
         }
         function resetBall() {

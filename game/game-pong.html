@@ -52,12 +52,16 @@
             else { baseBall = 3; baseCpu = 3; }
             resetBall(Math.random() > 0.5 ? 1 : -1);
         }
+        const paddleImg = new window.Image();
+        paddleImg.src = 'assets/bat.svg';
+        let paddleImgReady = false;
+        paddleImg.onload = () => { paddleImgReady = true; };
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw paddle
-            ctx.fillStyle = "#00E15C";
-            ctx.fillRect(10, paddleY, 10, 60);
+            // Left paddle
+            if (paddleImgReady) ctx.drawImage(paddleImg, 10, paddleY, 10, 60);
+            else { ctx.fillStyle = "#00E15C"; ctx.fillRect(10, paddleY, 10, 60); }
             
             // Draw ball
             ctx.beginPath();
@@ -65,8 +69,8 @@
             ctx.fill();
 
             // CPU paddle
-            ctx.fillStyle = "#00E15C";
-            ctx.fillRect(380, cpuY, 10, 60);
+            if (paddleImgReady) ctx.drawImage(paddleImg, 380, cpuY, 10, 60);
+            else { ctx.fillStyle = "#00E15C"; ctx.fillRect(380, cpuY, 10, 60); }
             
             // Score
             ctx.fillStyle = "#72F9A1";
@@ -145,34 +149,6 @@
         });
 
         gameLoop();
-  </script>
-</body>
-</html>
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowUp':
-                    paddleDY = -4;
-                    break;
-                case 'ArrowDown':
-                    paddleDY = 4;
-                    break;
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                paddleDY = 0;
-            }
-        });
-
-        gameLoop();
     </script>
-</body>
-</html>
 </body>
 </html>

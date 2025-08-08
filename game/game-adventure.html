@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Adventure</title>
+  <link rel="stylesheet" href="game-common.css">
+</head>
+<body>
+  <div class="audio-controls">
+    <button class="audio-btn" id="music-toggle" title="Toggle Music">🎵</button>
+    <button class="audio-btn" id="sfx-toggle" title="Toggle SFX">🔊</button>
+  </div>
+  
+  <div class="game-container">
+    <div class="score">
+      Health: <span id="health">100</span> | 
+      Score: <span id="score">0</span> | 
+      Level: <span id="level">1</span>
+    </div>
+    
+    <div class="controls">
+      <label>
+        Difficulty:
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+    </div>
+    
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div class="instructions">
+      Use WASD or Arrow keys to move. Collect items and avoid enemies!
+      <br>Touch/swipe controls available on mobile.
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Game state
+    let gameRunning = true;
+    let soundOn = true, musicOn = true;
+    let backgroundMusic;
+    
+    // Player object
+    const player = {
+      x: 50, y: 50, width: 32, height: 32,
+      speed: 3, health: 100, score: 0, level: 1,
+      sprite: null, direction: 'down'
+    };
+    
+    // Game objects
+    let enemies = [];
+    let items = [];
+    let tiles = [];
+    
+    // Asset loading
+    const assets = {
+      playerSprite: null,
+      tileSprite: null,
+      enemySprite: null,
+      itemSprite: null
+    };
+    
+    // Load sprites
+    function loadAssets() {
+      const assetPaths = {
+        playerSprite: 'game/assets/32rogues/game-character-backgroundless.png',
+        tileSprite: 'assets/32rogues/tiles.png',
+        enemySprite: 'assets/32rogues/monsters.png',
+        itemSprite: 'assets/32rogues/items.png'
+      };
+      
+      Object.entries(assetPaths).forEach(([key, path]) => {
+        const img = new Image();
+        img.onload = () => {
+          assets[key] = img;
+          console.log(`Loaded ${key}`);
+        };
+        img.onerror = () => {
+          console.log(`Failed to load ${key}, using fallback`);
+        };
+        img.src = path;
+      });
+    }
+    
+    // Sound system
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AC();
+    
+    function createTone(freq, dur, type = 'sine', vol = 0.1) {
+      if (!soundOn) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = type;
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + dur);
+    }
+    
+    const sounds = {
+      collect: () => createTone(800, 0.1, 'square'),
+      damage: () => createTone(200, 0.3, 'sawtooth'),
+      levelUp: () => {
+        [523, 659, 784].forEach((freq, i) => 
+          setTimeout(() => createTone(freq, 0.2, 'sine'), i * 100)
+        );
+      }
+    };
+    
+    // Initialize background music
+    function initMusic() {
+      if (musicOn) {
+        backgroundMusic = new Audio('assets/Sketchbook 2024-10-16.ogg');
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.2;
+        backgroundMusic.play().catch(() => console.log('Music autoplay blocked'));
+      }
+    }
+    
+    // Generate random enemies
+    function spawnEnemy() {
+      const edge = Math.floor(Math.random() * 4);
+      let x, y;
+      
+      switch(edge) {
+        case 0: x = Math.random() * canvas.width; y = -32; break;
+        case 1: x = canvas.width + 32; y = Math.random() * canvas.height; break;
+        case 2: x = Math.random() * canvas.width; y = canvas.height + 32; break;
+        case 3: x = -32; y = Math.random() * canvas.height; break;
+      }
+      
+      enemies.push({
+        x, y, width: 32, height: 32,
+        speed: 1 + Math.random() * 2,
+        health: 50 + player.level * 10
+      });
+    }
+    
+    // Generate random items
+    function spawnItem() {
+      items.push({
+        x: Math.random() * (canvas.width - 32),
+        y: Math.random() * (canvas.height - 32),
+        width: 32, height: 32,
+        type: Math.random() < 0.7 ? 'coin' : 'health'
+      });
+    }
+    
+    // Collision detection
+    function checkCollision(rect1, rect2) {
+      return rect1.x < rect2.x + rect2.width &&
+             rect1.x + rect1.width > rect2.x &&
+             rect1.y < rect2.y + rect2.height &&
+             rect1.y + rect1.height > rect2.y;
+    }
+    
+    // Input handling
+    const keys = {};
+    
+    document.addEventListener('keydown', (e) => {
+      keys[e.key.toLowerCase()] = true;
+      keys[e.key] = true;
+    });
+    
+    document.addEventListener('keyup', (e) => {
+      keys[e.key.toLowerCase()] = false;
+      keys[e.key] = false;
+    });
+    
+    // Touch controls for mobile
+    let touchStartX = 0, touchStartY = 0;
+    
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        keys['ArrowLeft'] = deltaX < -20;
+        keys['ArrowRight'] = deltaX > 20;
+        keys['ArrowUp'] = keys['ArrowDown'] = false;
+      } else {
+        keys['ArrowUp'] = deltaY < -20;
+        keys['ArrowDown'] = deltaY > 20;
+        keys['ArrowLeft'] = keys['ArrowRight'] = false;
+      }
+    });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      keys['ArrowLeft'] = keys['ArrowRight'] = keys['ArrowUp'] = keys['ArrowDown'] = false;
+    });
+    
+    // Game update loop
+    function update() {
+      if (!gameRunning) return;
+      
+      // Player movement
+      const prevX = player.x, prevY = player.y;
+      
+      if (keys['a'] || keys['ArrowLeft']) {
+        player.x -= player.speed;
+        player.direction = 'left';
+      }
+      if (keys['d'] || keys['ArrowRight']) {
+        player.x += player.speed;
+        player.direction = 'right';
+      }
+      if (keys['w'] || keys['ArrowUp']) {
+        player.y -= player.speed;
+        player.direction = 'up';
+      }
+      if (keys['s'] || keys['ArrowDown']) {
+        player.y += player.speed;
+        player.direction = 'down';
+      }
+      
+      // Keep player in bounds
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+      player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+      
+      // Update enemies (move toward player)
+      enemies.forEach(enemy => {
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 0) {
+          enemy.x += (dx / distance) * enemy.speed;
+          enemy.y += (dy / distance) * enemy.speed;
+        }
+        
+        // Check collision with player
+        if (checkCollision(player, enemy)) {
+          player.health -= 5;
+          sounds.damage();
+          enemy.x = -100; // Remove enemy
+          
+          if (player.health <= 0) {
+            gameRunning = false;
+            alert(`Game Over! Final Score: ${player.score}`);
+          }
+        }
+      });
+      
+      // Remove off-screen enemies
+      enemies = enemies.filter(enemy => 
+        enemy.x > -50 && enemy.x < canvas.width + 50 &&
+        enemy.y > -50 && enemy.y < canvas.height + 50
+      );
+      
+      // Check item collection
+      items.forEach((item, index) => {
+        if (checkCollision(player, item)) {
+          if (item.type === 'coin') {
+            player.score += 10;
+            sounds.collect();
+          } else if (item.type === 'health') {
+            player.health = Math.min(100, player.health + 20);
+            sounds.collect();
+          }
+          items.splice(index, 1);
+          
+          // Level up check
+          if (player.score > 0 && player.score % 100 === 0) {
+            player.level++;
+            sounds.levelUp();
+          }
+        }
+      });
+      
+      // Spawn new entities
+      if (Math.random() < 0.02 + player.level * 0.005) spawnEnemy();
+      if (Math.random() < 0.01) spawnItem();
+      
+      // Update UI
+      document.getElementById('health').textContent = player.health;
+      document.getElementById('score').textContent = player.score;
+      document.getElementById('level').textContent = player.level;
+    }
+    
+    // Render game
+    function draw() {
+      // Clear canvas with tile pattern
+      ctx.fillStyle = '#1a3a2e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw tile pattern
+      if (assets.tileSprite) {
+        for (let x = 0; x < canvas.width; x += 32) {
+          for (let y = 0; y < canvas.height; y += 32) {
+            ctx.drawImage(assets.tileSprite, 0, 0, 32, 32, x, y, 32, 32);
+          }
+        }
+      }
+      
+      // Draw items
+      items.forEach(item => {
+        if (assets.itemSprite) {
+          const spriteX = item.type === 'coin' ? 0 : 32;
+          ctx.drawImage(assets.itemSprite, spriteX, 0, 32, 32, item.x, item.y, 32, 32);
+        } else {
+          ctx.fillStyle = item.type === 'coin' ? '#ffd700' : '#ff6b6b';
+          ctx.fillRect(item.x, item.y, item.width, item.height);
+        }
+      });
+      
+      // Draw enemies
+      enemies.forEach(enemy => {
+        if (assets.enemySprite) {
+          ctx.drawImage(assets.enemySprite, 0, 0, 32, 32, enemy.x, enemy.y, 32, 32);
+        } else {
+          ctx.fillStyle = '#ff4444';
+          ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        }
+      });
+      
+      // Draw player
+      if (assets.playerSprite) {
+        ctx.drawImage(assets.playerSprite, player.x, player.y, player.width, player.height);
+      } else {
+        ctx.fillStyle = '#00e15c';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+      }
+      
+      // Draw health bar
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(10, 10, 100, 10);
+      ctx.fillStyle = '#00ff00';
+      ctx.fillRect(10, 10, player.health, 10);
+    }
+    
+    // Game loop
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+    
+    // Event listeners
+    document.getElementById('music-toggle').addEventListener('click', () => {
+      musicOn = !musicOn;
+      if (musicOn) {
+        initMusic();
+      } else if (backgroundMusic) {
+        backgroundMusic.pause();
+      }
+    });
+    
+    document.getElementById('sfx-toggle').addEventListener('click', () => {
+      soundOn = !soundOn;
+      document.getElementById('sfx-toggle').textContent = soundOn ? '🔊' : '🔇';
+    });
+    
+    document.getElementById('difficulty').addEventListener('change', (e) => {
+      const difficulty = e.target.value;
+      switch(difficulty) {
+        case 'easy':
+          player.speed = 4;
+          player.health = 150;
+          break;
+        case 'hard':
+          player.speed = 2;
+          player.health = 75;
+          break;
+        default:
+          player.speed = 3;
+          player.health = 100;
+      }
+    });
+    
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAssets();
+      initMusic();
+      
+      // Spawn initial items
+      for (let i = 0; i < 5; i++) spawnItem();
+      
+      gameLoop();
+    });
+  </script>
+</body>
+</html>
