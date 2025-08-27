@@ -9,7 +9,7 @@
 <body>
   <div class="game-container">
     <div class="score">Score: <span id="score">0</span></div>
-    <canvas id="gameCanvas" width="400" height="300"></canvas>
+    <canvas id="snake" width="400" height="300"></canvas>
     <div class="controls">
       <label>Difficulty:
         <select id="difficulty">
@@ -23,25 +23,36 @@
     <div class="instructions">Use arrow keys to control the snake. Press R to restart.</div>
   </div>
   <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('snake');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
 
-        let snake = [{ x: 200, y: 150 }];
+        let snakeArray = [{ x: 200, y: 150 }];
         let direction = 'RIGHT';
         let food = { x: 100, y: 100 };
         let gameOver = false;
-        let score = 0;
+        let gameScore = 0;
 
         let soundOn = true;
-        // WebAudio SFX
-        const AC = window.AudioContext || window.webkitAudioContext;
-        const audioCtx = new AC();
+        // WebAudio SFX - with error handling
+        let audioCtx;
+        try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AC();
+        } catch (e) {
+            console.log('Audio context creation failed:', e);
+            soundOn = false;
+        }
+        
         function sfx(freq = 440, dur = 0.07, type = 'square', gain = 0.05) {
-          if (!soundOn) return;
-          const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-          o.type = type; o.frequency.value = freq; g.gain.value = gain;
-          o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), dur*1000);
+          if (!soundOn || !audioCtx) return;
+          try {
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.type = type; o.frequency.value = freq; g.gain.value = gain;
+            o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), dur*1000);
+          } catch (e) {
+            console.log('Audio playback failed:', e);
+          }
         }
         const soundChk = document.getElementById('sound');
         soundChk.addEventListener('change', e => soundOn = e.target.checked);
@@ -59,15 +70,19 @@
             do {
                 food.x = Math.floor(Math.random() * (canvas.width / 10)) * 10;
                 food.y = Math.floor(Math.random() * (canvas.height / 10)) * 10;
-            } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
+            } while (snakeArray.some(segment => segment.x === food.x && segment.y === food.y));
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // Draw background
+            ctx.fillStyle = "#2d3748";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
             // Draw snake
             ctx.fillStyle = "#48bb78";
-            snake.forEach(segment => {
+            snakeArray.forEach(segment => {
                 ctx.fillRect(segment.x, segment.y, 10, 10);
             });
             
@@ -79,7 +94,7 @@
         function update() {
             if (gameOver) return;
             
-            let head = { ...snake[0] };
+            let head = { ...snakeArray[0] };
             
             switch(direction) {
                 case 'LEFT': head.x -= 10; break;
@@ -88,18 +103,30 @@
                 case 'DOWN': head.y += 10; break;
             }
             
-            snake.unshift(head);
+            snakeArray.unshift(head);
             
             // Check food collision
             if (head.x === food.x && head.y === food.y) {
-              score++; scoreElement.textContent = score; generateFood(); sfx(800, 0.08, 'square');
+              gameScore++; scoreElement.textContent = gameScore; generateFood(); sfx(800, 0.08, 'square');
             } else {
-              snake.pop();
+              snakeArray.pop();
             }
             
             // Check wall collision
-            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
-                gameOver = true; alert('Game Over! Score: ' + score); sfx(120, 0.3, 'sawtooth');
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snakeArray.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver = true; 
+                sfx(120, 0.3, 'sawtooth');
+                // Draw game over message on canvas instead of alert
+                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ff4444";
+                ctx.font = "24px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("Game Over!", canvas.width/2, canvas.height/2 - 20);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "16px Arial";
+                ctx.fillText("Score: " + gameScore, canvas.width/2, canvas.height/2 + 10);
+                ctx.fillText("Press R to restart", canvas.width/2, canvas.height/2 + 35);
                 return;
             }
         }
@@ -129,9 +156,10 @@
             }
             if (e.key.toLowerCase() === 'r' && gameOver) {
                 // quick restart
-                snake = [{ x: 200, y: 150 }];
+                snakeArray = [{ x: 200, y: 150 }];
                 direction = 'RIGHT';
-                score = 0;
+                gameScore = 0;
+                scoreElement.textContent = gameScore;
                 gameOver = false;
                 generateFood();
                 gameLoop();
@@ -144,35 +172,4 @@
   </script>
 </body>
 </html>
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowLeft':
-                    if (direction !== 'RIGHT') direction = 'LEFT';
-                    break;
-                case 'ArrowRight':
-                    if (direction !== 'LEFT') direction = 'RIGHT';
-                    break;
-                case 'ArrowUp':
-                    if (direction !== 'DOWN') direction = 'UP';
-                    break;
-                case 'ArrowDown':
-                    if (direction !== 'UP') direction = 'DOWN';
-                    break;
-            }
-            if (e.key.toLowerCase() === 'r' && gameOver) {
-                // quick restart
-                snake = [{ x: 200, y: 150 }];
-                direction = 'RIGHT';
-                score = 0;
-                gameOver = false;
-                generateFood();
-                gameLoop();
-            }
-        });
 
-        // Initialize game
-        generateFood();
-        gameLoop();
-    </script>
-</body>
-</html>

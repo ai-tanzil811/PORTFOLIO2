@@ -1,4 +1,4 @@
-const canvas = document.getElementById('pong');
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const paddleImg = new Image();
 paddleImg.src = 'assets/bat.svg';

@@ -1,7 +1,9 @@
 const canvas = document.getElementById('snake');
 const ctx = canvas.getContext('2d');
+const scoreElement = document.getElementById('score');
 let snake = [{x:200,y:150}], dir = 'RIGHT', food = {x:100,y:100}, gameOver = false;
 let score = 0, speed = 80;
+
 function draw() {
   ctx.clearRect(0,0,400,300);
   ctx.fillStyle="#00E15C";
@@ -12,6 +14,7 @@ function draw() {
   ctx.fillStyle = "#72F9A1";
   ctx.font = "14px Arial";
   ctx.fillText(`Score: ${score}`, 10, 16);
+  if(scoreElement) scoreElement.textContent = score;
 }
 function update() {
   if(gameOver) return;

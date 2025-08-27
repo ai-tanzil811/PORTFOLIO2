@@ -1,5 +1,6 @@
-const canvas = document.getElementById('breakout');
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const scoreElement = document.getElementById('score');
 const brickImg = new Image();
 brickImg.src = 'assets/bat.svg';
 let brickReady = false;
@@ -64,6 +65,7 @@ function update() {
       b.hit = true;
       ballDY *= -1;
       score += 10;
+      if(scoreElement) scoreElement.textContent = score;
     }
   });
   bricks = bricks.filter(b => !b.hit);
