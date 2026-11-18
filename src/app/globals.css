@@ -29,6 +29,14 @@ body { background: var(--background); color: var(--text); }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
+@media print {
+  header, footer, .print\\:hidden { display: none !important; }
+  body { background: #fff; color: #000; }
+  main { max-width: none !important; padding: 0 !important; }
+  article { font-size: 10pt; }
+  a { color: #000; text-decoration: none; }
+}
+
 .skip-link {
   position: absolute;
   left: 1rem;
