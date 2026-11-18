@@ -1,0 +1,12 @@
+export const links = {
+  email: "mailto:ahmedtanzil174@gmail.com",
+  emailAddress: "ahmedtanzil174@gmail.com",
+  github: "https://github.com/ai-tanzil811",
+  linkedin: "https://linkedin.com/in/ai-tanzil",
+  x: "https://x.com/ai_tanzil",
+  huggingFace: "https://huggingface.co/ai-tanzil",
+  kaggle: "https://kaggle.com/ashrafulislamtanzil",
+  pypi: "https://pypi.org/user/aitanzil/",
+  figma: "https://figma.com/@aitanzil",
+  portfolio: "https://ai-tanzil811.github.io/PORTFOLIO2/",
+};

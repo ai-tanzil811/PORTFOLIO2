@@ -1,112 +1,41 @@
-#  Portfolio | Ashraful Islam Tanzil
+# Ashraful Islam Tanzil Portfolio
 
-<p align="center">
-  <img src="screenshot.jpg" alt="Portfolio Preview" width="800">
-</p>
+A recruiter-first Next.js portfolio for AI/ML research and software engineering work.
 
-A futuristic, portfolio website with animated circuit patterns and a sleek green UI.
+## Local development
 
-## ⚡️ Features
-
-- **Design**: Sleek, modern UI with animated circuit patterns and futuristic elements
-- **Interactive UI**: Custom cursor, hover effects, and smooth animations
-- **Responsive Layout**: Fully responsive design that works on all devices
-- **Tech Stack Showcase**: Modal display of programming languages, frameworks, and tools
-- **GitHub Stats Integration**: Live GitHub statistics display
-- **Social Media Links**: Easy access to contact information and professional profiles
-
-## 🚀 Technologies Used
-
-- HTML5
-- CSS3 with custom animations
-- JavaScript (ES6+)
-- jQuery for DOM manipulation
-- GSAP for advanced animations
-- Parallax.js for depth effects
-
-## 🔧 Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/ai-tanzil811/portfolio.git
-   cd portfolio
-   ```
-
-2. Open `index.html` in your browser, or use a local development server:
-   ```bash
-   # Using Python's built-in server
-   python -m http.server
-
-   # OR using Node.js with http-server
-   npx http-server
-   ```
-3. Just download the whole file and run "index.html" file
-
-## 🎨 Customization
-
-### Changing Colors
-
-The website uses CSS variables for easy color customization. Edit the `:root` section in `style.css`:
-
-```css
-:root { 
-  --cyber-green: #00E15C;
-  --cyber-green-dark: #02863a;
-  --cyber-green-light: #72F9A1;
-  /* ...other color variables... */
-}
+```bash
+npm install
+npm run dev
 ```
 
-### Updating Content
+Open `http://localhost:3000/PORTFOLIO2/`.
 
-1. **Personal Information**: Edit the text in the `controller-box-content` section of `index.html`
-2. **Tech Stack**: Modify the tech chips in the `tech-grid` section
-3. **Profile Image**: Replace `2ndopinionprofilepic.png` with your own image
-4. **GitHub Stats**: Update the GitHub username in the stats API URLs
+## Updating content
 
-### Adding New Sections
+Portfolio content is typed and kept under `src/data/`:
 
-The modular structure makes it easy to add new sections. Follow the existing patterns for:
-- Modal dialogs
-- Content panels
-- Animation elements
+- Edit `src/data/profile.ts` for name, headline, biography, location, and availability.
+- Edit `src/data/links.ts` for contact, social, project, and artifact URLs.
+- Edit `src/data/projects.ts` for project cards and status labels.
+- Edit `src/data/research.ts` for case-study narratives and artifact links.
+- Edit `src/data/education.ts` for education and `src/data/skills.ts` for grouped skills.
+- Edit case-study layouts in `src/app/work/[slug]/page.tsx` only when presentation changes.
 
-## 📱 Responsive Behavior
+Add project figures under `public/` with descriptive alt text. Do not add unverified metrics, respondent-level data, credentials, or large datasets/model weights.
 
-The portfolio is designed to work on all screen sizes:
-- Desktop: Full experience with all animations
-- Tablet: Optimized layout with slightly reduced effects
-- Mobile: Streamlined interface with essential content
+## Quality checks
 
-## 🔌 External Dependencies
+```bash
+npm run typecheck
+npm run lint
+npm run cv
+npm run check:links
+npm run build
+```
 
-- [Font Awesome](https://fontawesome.com/) - For icons
-- [GSAP](https://greensock.com/gsap/) - For animations
-- [Parallax.js](https://matthew.wagerfield.com/parallax/) - For depth effects
-- [jQuery](https://jquery.com/) - For DOM manipulation
+The production build generates `public/cv.pdf` and exports a static site to `out/`.
 
+## Deployment
 
-
-## 🙏 Credits
-
-- COPIED design concept from Internet
-- Animation techniques adapted from various open-source projects
-- Icon library from Font Awesome
-
----
-
-<p align="center">
-  Made with ❤️ by <a href="https://github.com/ai-tanzil811">ai-tanzil811</a>
-</p>
-
-## 🕹 Games
-
-You can play the built-in games from the site’s GAMES modal, or open the standalone pages directly:
-
-- Snake: game/game-snake.html
-- Pong: game/game-pong.html
-- Breakout: game/game-breakout.html
-- Tic‑Tac‑Toe: game/game-tictactoe.html
-- 2048: game/game-2048.html
-
-Tip: Open index.html, click GAMES in the header, then select a title. Each game also works standalone in a new tab.
+Pushing verified changes to `main` triggers `.github/workflows/deploy.yml`, which deploys the static export to GitHub Pages at `https://ai-tanzil811.github.io/PORTFOLIO2/`.
