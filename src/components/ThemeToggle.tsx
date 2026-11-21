@@ -8,7 +8,7 @@ export function ThemeToggle() {
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
-    const shouldDark = saved ? saved === "dark" : false;
+    const shouldDark = saved ? saved === "dark" : true;
     setDark(shouldDark);
     document.documentElement.classList.toggle("dark", shouldDark);
   }, []);
@@ -21,7 +21,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <button type="button" onClick={toggle} aria-label={dark ? "Use light theme" : "Use dark theme"} className="grid h-10 w-10 place-items-center rounded-full border" style={{ borderColor: "var(--border)" }}>
+    <button type="button" onClick={toggle} aria-label={dark ? "Use light theme" : "Use dark theme"} className="theme-toggle">
       {dark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );

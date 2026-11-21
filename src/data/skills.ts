@@ -1,6 +1,6 @@
 export const skillGroups = [
-  { title: "AI / ML / Bioinformatics", skills: ["Python", "PyTorch", "Hugging Face Transformers", "PEFT", "scikit-learn", "timm", "Scanpy", "AnnData", "Spatial proteomics"] },
-  { title: "Languages", skills: ["Python", "C", "C++", "Java", "JavaScript", "TypeScript", "PHP", "SQL", "Bash", "HTML", "CSS", "LaTeX"] },
-  { title: "Web & Data", skills: ["React", "Next.js", "Node.js", "Express", "Laravel", "Flutter", "REST APIs", "Socket.IO", "MySQL", "MongoDB", "Firebase", "SQLite"] },
-  { title: "Research & Tools", skills: ["Git / GitHub", "Docker", "Figma", "Kaggle", "Google Colab", "LaTeX / TikZ", "Reproducible experiments", "IEEE technical writing"] },
+  { title: "Languages", skills: ["Python", "JavaScript", "C", "C++", "Java", "PHP", "HTML5", "CSS3", "SQL"] },
+  { title: "AI, ML & Bioinformatics", skills: ["PyTorch", "Convolutional Neural Networks", "Vision Transformers", "BioViL-T", "DenseNet-121", "Knowledge Distillation", "Spatial Proteomics & Transcriptomics", "Hugging Face Transformers", "PEFT"] },
+  { title: "Web, Mobile & Databases", skills: ["React", "Node.js", "Express", "Laravel", "Flutter", "REST APIs", "MySQL", "Firebase", "SQLite", "Redis"] },
+  { title: "Tools & Environments", skills: ["Git", "GitHub", "UML System Design", "Kaggle", "Google Colab", "VS Code", "npm", "LaTeX / TikZ"] },
 ];

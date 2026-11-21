@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     description: "Research and engineering across Green AI, spatial proteomics, medical imaging, and full-stack systems.",
     url: "https://ai-tanzil811.github.io/PORTFOLIO2/",
   },
+  icons: { icon: "/PORTFOLIO2/icon.svg" },
   twitter: {
     card: "summary",
     title: "Ashraful Islam Tanzil — AI & Software Engineer",
@@ -22,6 +23,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"){document.documentElement.classList.add("dark")}}catch(e){document.documentElement.classList.add("dark")}}())`,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
         <a className="skip-link" href="#main">Skip to content</a>
         <Header />
