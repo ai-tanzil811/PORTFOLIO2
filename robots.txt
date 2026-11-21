@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://ai-tanzil811.github.io/PORTFOLIO2/sitemap.xml
