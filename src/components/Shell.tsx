@@ -25,7 +25,7 @@ export function Header() {
           {nav.map(([label, href]) => <a key={label} href={href}>{label}</a>)}
         </nav>
         <div className="nav-actions">
-          <a className="terminal-badge" href="https://ai-tanzil811.github.io/PORTFOLIO2/" target="_blank" rel="noopener noreferrer">
+          <a className="terminal-badge" href="https://aitanzil.me/" target="_blank" rel="noopener noreferrer">
             <Terminal size={14} /> Terminal
           </a>
           <ThemeToggle />

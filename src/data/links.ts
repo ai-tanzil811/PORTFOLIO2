@@ -9,5 +9,5 @@ export const links = {
   kaggle: "https://kaggle.com/ashrafulislamtanzil",
   pypi: "https://pypi.org/user/aitanzil/",
   figma: "https://figma.com/@aitanzil",
-  portfolio: "https://ai-tanzil811.github.io/PORTFOLIO2/",
+  portfolio: "https://aitanzil.me/",
 };

@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000/PORTFOLIO2/`.
+Open `http://localhost:3000/`.
 
 ## Updating content
 
@@ -38,4 +38,4 @@ The production build generates `public/cv.pdf` and exports a static site to `out
 
 ## Deployment
 
-Pushing verified changes to `main` triggers `.github/workflows/deploy.yml`, which deploys the static export to GitHub Pages at `https://ai-tanzil811.github.io/PORTFOLIO2/`.
+Pushing verified changes to `main` triggers `.github/workflows/deploy.yml`, which deploys the static export to GitHub Pages at `https://aitanzil.me/`.

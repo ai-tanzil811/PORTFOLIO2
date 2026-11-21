@@ -46,7 +46,7 @@ export default function Home() {
           <p className="hero-copy">{profile.bio}</p>
           <div className="hero-actions">
             <a className="button button-primary" href="#research">Explore Research &amp; Projects <ArrowRight size={17} /></a>
-            <a className="button button-secondary" href="https://ai-tanzil811.github.io/PORTFOLIO2/" target="_blank" rel="noopener noreferrer">
+            <a className="button button-secondary" href="https://aitanzil.me/" target="_blank" rel="noopener noreferrer">
               <Terminal size={17} /> Launch Terminal Portfolio <ExternalLink size={14} />
             </a>
           </div>

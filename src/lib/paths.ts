@@ -1,4 +1,4 @@
-export const basePath = "/PORTFOLIO2";
+export const basePath = "";
 
 export function withBase(path: string) {
   if (!path.startsWith("/")) return path;
