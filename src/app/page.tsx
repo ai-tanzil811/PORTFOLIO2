@@ -17,6 +17,7 @@ import { education } from "@/data/education";
 import { projects, type ProjectCategory } from "@/data/projects";
 import { skillGroups } from "@/data/skills";
 import { links } from "@/data/links";
+import { Terminal } from "@/components/Terminal";
 
 export default function Home() {
   const [filter, setFilter] = useState<"All" | ProjectCategory>("All");
@@ -47,6 +48,7 @@ export default function Home() {
             <span>$ pip install tanzil</span>
             {copied ? <Check size={15} /> : <Copy size={15} />}
           </button>
+          <Terminal />
           <div className="social-row" aria-label="Social profiles">
             <a href={links.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Linkedin size={18} /></a>
             <a href={links.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={18} /></a>

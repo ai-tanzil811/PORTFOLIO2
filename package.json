@@ -7,7 +7,10 @@
     "cv": "tsx scripts/generate-cv.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "check:links": "node scripts/check-links.mjs"
+    "check:links": "node scripts/check-links.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -16,19 +19,25 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.1",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^22.10.5",
     "@types/pdfkit": "^0.13.7",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^6.3.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
     "eslint-config-next": "^15.1.4",
+    "jsdom": "^31.0.1",
     "lighthouse": "^13.6.0",
     "pdfkit": "^0.16.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^5.1.1"
   }
 }

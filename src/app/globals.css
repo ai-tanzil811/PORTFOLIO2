@@ -67,6 +67,13 @@ button { font: inherit; }
 .button-secondary { border:1px solid var(--border); background:var(--surface); }
 .install-pill { margin-top:12px; height:38px; display:flex; align-items:center; gap:18px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--muted); padding:0 11px; cursor:pointer; }
 .install-pill span { font-family:"JetBrains Mono", ui-monospace, monospace; color:var(--accent); font-size:11px; }
+.terminal { max-width:680px; margin-top:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); overflow:hidden; }
+.terminal-output { min-height:72px; max-height:180px; overflow:auto; padding:10px 11px 2px; font-family:"JetBrains Mono", ui-monospace, monospace; font-size:11px; line-height:1.55; }
+.terminal-output p { margin:0 0 4px; color:var(--muted); }
+.terminal-input-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px; border-top:1px solid var(--border); padding:7px 8px; }
+.terminal-input-row label { color:var(--accent); font-family:"JetBrains Mono", ui-monospace, monospace; }
+.terminal-input-row input { min-width:0; border:0; outline:0; background:transparent; color:var(--text); font-family:"JetBrains Mono", ui-monospace, monospace; font-size:11px; }
+.terminal-input-row button { border:1px solid var(--border); border-radius:6px; background:var(--background); color:var(--text); padding:5px 8px; cursor:pointer; font-size:10px; }
 .social-row { display:flex; gap:7px; margin-top:20px; }
 .social-row a { width:38px; height:38px; border:1px solid var(--border); border-radius:8px; display:grid; place-items:center; color:var(--muted); }
 .social-row a:hover { color:var(--text); }
