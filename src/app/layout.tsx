@@ -5,14 +5,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://aitanzil.me"),
   title: "Ashraful Islam Tanzil — AI & Data Science Researcher",
-  description: "Official portfolio of Ashraful Islam Tanzil (ai-tanzil811), AI and Data Science researcher specializing in Parameter-Efficient Fine-Tuning (GreenPEFT), NLP, and machine learning systems.",
+  description: "Ashraful Islam Tanzil — AI & Data Science researcher working across machine learning, Green AI, spatial proteomics, medical imaging, and cybersecurity.",
   keywords: "Ashraful Islam Tanzil, Tanzil, ai-tanzil811, AI Researcher, Data Science, GreenPEFT, Machine Learning",
   authors: [{ name: "Ashraful Islam Tanzil" }],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     title: "Ashraful Islam Tanzil — AI & Data Science Researcher",
-    description: "Official portfolio, research publications, and open-source AI projects by Ashraful Islam Tanzil.",
+    description: "Ashraful Islam Tanzil — AI & Data Science researcher working across machine learning, Green AI, spatial proteomics, medical imaging, and cybersecurity.",
     url: "https://aitanzil.me/",
     siteName: "Ashraful Islam Tanzil",
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Ashraful Islam Tanzil — AI & Data Science Researcher",
-    description: "Official portfolio, research publications, and open-source AI projects by Ashraful Islam Tanzil.",
+    description: "Ashraful Islam Tanzil — AI & Data Science researcher working across machine learning, Green AI, spatial proteomics, medical imaging, and cybersecurity.",
   },
 };
 
