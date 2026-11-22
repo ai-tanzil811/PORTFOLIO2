@@ -7,6 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = ["", "/cv", "/work/greenpeft", "/work/cohere", "/work/sprint", "/work/chestxray-distillation", "/work/nirapod"];
   return routes.map(route => ({
     url: `${base}${route}${route ? "/" : "/"}`,
-    lastModified: new Date(),
+    lastModified: "2026-11-22",
+    changeFrequency: "monthly",
+    priority: route === "" ? 1 : 0.8,
   }));
 }
