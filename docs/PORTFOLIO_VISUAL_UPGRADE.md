@@ -299,3 +299,38 @@ The user has already shared several of these in the ChatGPT conversation. A codi
 ## Definition of done
 
 The live-site source has an improved, consistent visual system for project evidence; the project cards and case studies use authentic assets; the ML fall-detection project is represented as a distinct hardware/ML system; team and individual contributions are clearly distinguished; the site builds as a static export; all available tests pass; and no unverified claims or fabricated visuals have been introduced.
+
+
+---
+
+## 9. Professional Experience, Leadership, and Community Involvement
+
+The owner has additionally confirmed the following experience, which must be represented in the portfolio and professional profile rather than focusing exclusively on technical projects:
+
+### Telemarketing experience
+- The owner has worked as a telemarketer.
+- The employer/company, dates, employment type, responsibilities, products/services promoted, and measurable outcomes have not yet been supplied.
+- Do not invent these details. Add a concise experience entry once the owner provides them.
+- Highlight transferable skills only where supported by the owner's actual duties (for example, customer communication, persuasion, outreach, handling objections, or lead follow-up should be confirmed rather than assumed).
+
+### Government Science College Science Club (GSCSC)
+- The owner served as **Vice President of Public Relations (VP of PR)**.
+- The owner also participated in organizing activities and volunteering.
+- This is leadership and community involvement, not merely a membership entry.
+- Do not invent event names, dates, attendance figures, partnerships, fundraising totals, or impact metrics.
+- Once verified, show responsibilities such as public communication, coordination, event organization, volunteer support, and stakeholder outreach only if they accurately describe the owner's work.
+
+### Portfolio presentation
+- Add an “Experience & Leadership” section or equivalent, with a clear distinction between paid employment, student leadership, event organizing, and volunteering.
+- Keep the section visually consistent with the existing portfolio.
+- Do not bury these experiences under technical projects.
+- The profile should communicate a broader professional skill set: technical research and software engineering alongside communication, leadership, teamwork, and community participation.
+- Add these entries to CV/profile data only after inspecting the existing data schema and confirming missing factual details with the owner.
+
+### Details to request from the owner before finalizing
+- Telemarketing employer/company name and approximate dates.
+- Whether the role was full-time, part-time, contract, or temporary.
+- Main duties and any verifiable achievements.
+- GSCSC VP of PR tenure (month/year range).
+- Names or types of events organized and the owner's actual responsibilities.
+- Volunteering organizations/events and approximate dates.
