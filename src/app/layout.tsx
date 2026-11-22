@@ -3,7 +3,7 @@ import { Header, Footer } from "@/components/Shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://aitanzil.me"),
+  metadataBase: new URL("https://aitanzil.me/"),
   title: "Ashraful Islam Tanzil — AI & Data Science Researcher",
   description: "Ashraful Islam Tanzil — AI & Data Science researcher working across machine learning, Green AI, spatial proteomics, medical imaging, and cybersecurity.",
   keywords: "Ashraful Islam Tanzil, Tanzil, ai-tanzil811, AI Researcher, Data Science, GreenPEFT, Machine Learning",
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               "@type": "Person",
               "name": "Ashraful Islam Tanzil",
               "alternateName": ["Tanzil", "ai-tanzil811", "aitanzil"],
-              "url": "https://aitanzil.me",
+              "url": "https://aitanzil.me/",
               "jobTitle": "AI & Data Science Researcher",
               "description": "AI & Data Science Researcher focused on efficient deep learning, GreenPEFT, and open-source ML tools.",
               "sameAs": [

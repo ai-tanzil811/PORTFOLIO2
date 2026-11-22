@@ -66,7 +66,19 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="copyright">© {new Date().getFullYear()} Ashraful Islam Tanzil</div>
+      <div className="copyright">
+        <span>© {new Date().getFullYear()} Ashraful Islam Tanzil</span>
+        <a
+          href="https://www.cloudflare.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Protected and accelerated by Cloudflare"
+          className="cloudflare-status"
+        >
+          <span className="cloudflare-status-dot" aria-hidden="true"></span>
+          <span>Protected by Cloudflare</span>
+        </a>
+      </div>
     </footer>
   );
 }

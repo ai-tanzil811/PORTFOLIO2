@@ -144,7 +144,10 @@ button { font: inherit; }
 .copy-email { display:flex; align-items:center; gap:9px; cursor:pointer; border-bottom:1px solid var(--accent); padding:0 0 7px; }
 .footer-socials { display:flex; gap:13px; color:var(--muted); font-size:12px; }
 .footer-socials a:hover { color:var(--accent); }
-.copyright { height:58px; display:flex; align-items:center; color:var(--muted); font-family:"JetBrains Mono", ui-monospace, monospace; font-size:10px; }
+.copyright { min-height:58px; display:flex; align-items:center; justify-content:space-between; gap:16px; color:var(--muted); font-family:"JetBrains Mono", ui-monospace, monospace; font-size:10px; }
+.cloudflare-status { display:inline-flex; align-items:center; gap:6px; opacity:.8; transition:opacity .15s ease, color .15s ease; }
+.cloudflare-status:hover { color:var(--text); opacity:1; }
+.cloudflare-status-dot { width:8px; height:8px; flex:none; border-radius:999px; background:#f97316; box-shadow:0 0 0 3px rgba(249,115,22,.12); }
 
 @media (max-width: 900px) {
   .desktop-nav { display:none; }
@@ -183,6 +186,7 @@ button { font: inherit; }
   .footer-card { align-items:flex-start; flex-direction:column; padding:22px; }
   .footer-action { align-items:flex-start; width:100%; }
   .footer-socials { flex-wrap:wrap; }
+  .copyright { align-items:flex-start; flex-direction:column; justify-content:center; padding:12px 0; }
 }
 
 @media (max-width: 420px) {
