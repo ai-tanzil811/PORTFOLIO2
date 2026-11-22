@@ -74,18 +74,6 @@ export const projects: Project[] = [
     repositoryLink: "https://github.com/ai-tanzil811/DBMS-Project-Spring-25",
   },
   {
-    title: "tanzil",
-    category: "HCI & Open-Source",
-    summary: "Published Python utility package and interactive terminal-style developer portfolio for exploring projects by command.",
-    metric: "pip install",
-    metricLabel: "tanzil",
-    technologies: ["Python", "PyPI", "Terminal UI", "Open Source"],
-    link: "https://pypi.org/user/aitanzil/",
-    linkLabel: "View PyPI",
-    liveLink: "https://aitanzil.me/",
-    repositoryLink: "https://github.com/ai-tanzil811/tanzil",
-  },
-  {
     title: "MediVault",
     category: "Full-Stack & Systems",
     summary: "Database-backed dispensary inventory and order-processing system with structured relational schemas and stock tracking.",

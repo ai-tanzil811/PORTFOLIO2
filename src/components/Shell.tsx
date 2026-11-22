@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Menu, Terminal, X } from "lucide-react";
+import { Check, Copy, Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { withBase } from "@/lib/paths";
 import { links } from "@/data/links";
@@ -13,7 +13,6 @@ export function Header() {
     ["Research", "#research"],
     ["Skills", "#skills"],
     ["Experience", "#experience"],
-    ["Awards", "#awards"],
     ["Contact", "#contact"],
   ];
 
@@ -25,9 +24,6 @@ export function Header() {
           {nav.map(([label, href]) => <a key={label} href={href}>{label}</a>)}
         </nav>
         <div className="nav-actions">
-          <a className="terminal-badge" href="https://aitanzil.me/" target="_blank" rel="noopener noreferrer">
-            <Terminal size={14} /> Terminal
-          </a>
           <ThemeToggle />
           <button type="button" className="menu-button" aria-expanded={open} aria-controls="mobile-nav" aria-label="Toggle navigation" onClick={() => setOpen(value => !value)}>
             {open ? <X size={20} /> : <Menu size={20} />}

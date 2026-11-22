@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
@@ -12,18 +11,12 @@ import {
   Mail,
   MapPin,
   Package,
-  Terminal,
 } from "lucide-react";
 import { profile } from "@/data/profile";
 import { education } from "@/data/education";
 import { projects, type ProjectCategory } from "@/data/projects";
 import { skillGroups } from "@/data/skills";
 import { links } from "@/data/links";
-
-const reveal = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0 },
-};
 
 export default function Home() {
   const [filter, setFilter] = useState<"All" | ProjectCategory>("All");
@@ -39,15 +32,15 @@ export default function Home() {
   return (
     <main id="main">
       <section className="hero section-shell">
-        <motion.div initial="hidden" animate="visible" variants={reveal} transition={{ duration: 0.55 }}>
-          <div className="status-pill"><MapPin size={14} /> Dhaka, Bangladesh <span /> Open to AI/ML &amp; Full-Stack Opportunities</div>
+        <div>
+          <div className="status-pill"><MapPin size={14} /> Dhaka, Bangladesh · Open to AI/ML &amp; full-stack roles</div>
           <h1>{profile.name}</h1>
           <p className="hero-role">{profile.headline}</p>
           <p className="hero-copy">{profile.bio}</p>
           <div className="hero-actions">
             <a className="button button-primary" href="#research">Explore Research &amp; Projects <ArrowRight size={17} /></a>
-            <a className="button button-secondary" href="https://aitanzil.me/" target="_blank" rel="noopener noreferrer">
-              <Terminal size={17} /> Launch Terminal Portfolio <ExternalLink size={14} />
+            <a className="button button-secondary" href={links.github} target="_blank" rel="noopener noreferrer">
+              <Github size={17} /> View GitHub <ExternalLink size={14} />
             </a>
           </div>
           <button type="button" className="install-pill" onClick={copyInstall} aria-label="Copy pip install tanzil">
@@ -61,38 +54,27 @@ export default function Home() {
             <a href={links.pypi} target="_blank" rel="noopener noreferrer" aria-label="PyPI"><Package size={18} /></a>
             <a href={links.email} aria-label="Email"><Mail size={18} /></a>
           </div>
-        </motion.div>
-        <motion.div className="hero-terminal" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.12 }}>
-          <div className="terminal-bar"><span /><span /><span /><p>tanzil.profile</p></div>
-          <div className="terminal-body">
-            <p><span>~/portfolio</span> $ whoami</p>
-            <h2>Ashraful Islam Tanzil</h2>
-            <p className="terminal-line"><span>role</span> ML &amp; AI / Bioinformatics / Full-Stack</p>
-            <p className="terminal-line"><span>location</span> Dhaka, Bangladesh</p>
-            <p className="terminal-line"><span>focus</span> reproducible, measurable systems</p>
-            <p className="terminal-cursor"><span>~/portfolio</span> $ <b /></p>
-          </div>
-        </motion.div>
+        </div>
       </section>
 
       <section id="about" className="section-shell about-grid">
-        <motion.article className="about-card card" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={reveal} transition={{ duration: 0.45 }}>
+        <article className="about-card card">
           <p className="eyebrow">About me</p>
           <h2>Research depth.<br />Engineering utility.</h2>
           <p>{profile.about}</p>
-        </motion.article>
-        <motion.article className="metric-card card" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
+        </article>
+        <article className="metric-card card">
           <p className="metric">6.06M+</p><p>Cells harmonized</p><span>COHERE · spatial proteomics</span>
-        </motion.article>
-        <motion.article className="metric-card card" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
+        </article>
+        <article className="metric-card card">
           <p className="metric">3.60 <small>/ 4.00</small></p><p>CGPA</p><span>Top 3% · 4× merit scholar</span>
-        </motion.article>
-        <motion.article className="metric-card card" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
+        </article>
+        <article className="metric-card card">
           <p className="metric">30+</p><p>Public repositories</p><span>GitHub Pull Shark · PyPI author</span>
-        </motion.article>
-        <motion.article className="metric-card card" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
+        </article>
+        <article className="metric-card card">
           <p className="metric">2 <small>datasets</small></p><p>1 model · 9 notebooks</p><span>Kaggle contributor</span>
-        </motion.article>
+        </article>
       </section>
 
       <section id="research" className="section-shell section-space">
@@ -104,9 +86,9 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <motion.div layout className="project-grid">
+        <div className="project-grid">
           {visibleProjects.map((project, index) => (
-            <motion.article layout key={project.title} className={`project-card card ${project.wide ? "project-wide" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
+            <article key={project.title} className={`project-card card ${project.wide ? "project-wide" : ""}`}>
               <div className="project-top">
                 <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
                 <span className="project-category">{project.category}</span>
@@ -126,20 +108,20 @@ export default function Home() {
                   <a className="project-link" href={project.repositoryLink} target="_blank" rel="noopener noreferrer">Source code <ArrowRight size={15} /></a>
                 )}
               </div>
-            </motion.article>
+            </article>
           ))}
-        </motion.div>
+        </div>
       </section>
 
       <section id="skills" className="section-shell section-space">
         <div className="section-heading"><div><p className="eyebrow">Technical matrix</p><h2>Tools I work with</h2></div></div>
         <div className="skills-grid">
           {skillGroups.map((group, index) => (
-            <motion.article className="skill-card card" key={group.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} transition={{ delay: index * 0.04 }}>
+            <article className="skill-card card" key={group.title}>
               <p className="skill-number">0{index + 1}</p>
               <h3>{group.title}</h3>
               <div>{group.skills.map(skill => <span key={skill}>{skill}</span>)}</div>
-            </motion.article>
+            </article>
           ))}
         </div>
       </section>
