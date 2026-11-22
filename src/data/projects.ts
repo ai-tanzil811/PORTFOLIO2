@@ -9,6 +9,8 @@ export type Project = {
   technologies: string[];
   link: string;
   linkLabel: string;
+  liveLink?: string;
+  repositoryLink?: string;
   wide?: boolean;
 };
 
@@ -20,8 +22,9 @@ export const projects: Project[] = [
     metric: "6.06M+",
     metricLabel: "cells harmonized",
     technologies: ["Python", "PyTorch", "Spatial Proteomics", "Transformers", "Kaggle T4"],
-    link: "https://github.com/ai-tanzil811",
-    linkLabel: "View repository",
+    link: "https://github.com/Tabassum-Sumaiya13/transferable-celltype-representation",
+    linkLabel: "View team repository",
+    repositoryLink: "https://github.com/Tabassum-Sumaiya13/transferable-celltype-representation",
     wide: true,
   },
   {
@@ -33,6 +36,7 @@ export const projects: Project[] = [
     technologies: ["BioViL-T", "DenseNet-121", "XrViT", "Knowledge Distillation"],
     link: "https://www.kaggle.com/ashrafulislamtanzil",
     linkLabel: "View Kaggle",
+    repositoryLink: "https://github.com/ai-tanzil811",
   },
   {
     title: "Project Nirapod",
@@ -43,6 +47,8 @@ export const projects: Project[] = [
     technologies: ["HCI", "UX Research", "Safety Systems", "Mobile"],
     link: "https://www.kaggle.com/datasets/ashrafulislamtanzil/nirapod-the-virtual-art-of-actual-safety",
     linkLabel: "View dataset",
+    liveLink: "https://nirapod-hci.netlify.app/",
+    repositoryLink: "https://github.com/ai-tanzil811/HCI-PROJECT",
   },
   {
     title: "Green AI Decision Support Frameworks",
@@ -51,8 +57,10 @@ export const projects: Project[] = [
     metric: "PEFT",
     metricLabel: "resource-aware ML",
     technologies: ["Python", "PyTorch", "PEFT", "Research"],
-    link: "https://github.com/ai-tanzil811",
-    linkLabel: "View GitHub",
+    link: "https://green-peft.vercel.app/",
+    linkLabel: "Launch live app",
+    liveLink: "https://green-peft.vercel.app/",
+    repositoryLink: "https://github.com/ai-tanzil811/Green-AI-Decision-Support-Frameworks",
   },
   {
     title: "SecureVoice",
@@ -61,8 +69,9 @@ export const projects: Project[] = [
     metric: "Full-stack",
     metricLabel: "case management",
     technologies: ["Web", "Geolocation", "Verification", "Dashboard"],
-    link: "https://github.com/ai-tanzil811",
-    linkLabel: "View GitHub",
+    link: "https://github.com/ai-tanzil811/DBMS-Project-Spring-25",
+    linkLabel: "View repository",
+    repositoryLink: "https://github.com/ai-tanzil811/DBMS-Project-Spring-25",
   },
   {
     title: "tanzil",
@@ -73,6 +82,8 @@ export const projects: Project[] = [
     technologies: ["Python", "PyPI", "Terminal UI", "Open Source"],
     link: "https://pypi.org/user/aitanzil/",
     linkLabel: "View PyPI",
+    liveLink: "https://aitanzil.me/",
+    repositoryLink: "https://github.com/ai-tanzil811/tanzil",
   },
   {
     title: "MediVault",
@@ -81,7 +92,8 @@ export const projects: Project[] = [
     metric: "Relational",
     metricLabel: "inventory system",
     technologies: ["Database", "Inventory", "Ordering", "SQL"],
-    link: "https://github.com/ai-tanzil811",
-    linkLabel: "View GitHub",
+    link: "https://github.com/ai-tanzil811/MediVault",
+    linkLabel: "View repository",
+    repositoryLink: "https://github.com/ai-tanzil811/MediVault",
   },
 ];

@@ -117,7 +117,15 @@ export default function Home() {
               <h3>{project.title}</h3>
               <p>{project.summary}</p>
               <div className="tech-row">{project.technologies.map(tech => <span key={tech}>{tech}</span>)}</div>
-              <a className="project-link" href={project.link} target="_blank" rel="noopener noreferrer">{project.linkLabel} <ArrowRight size={15} /></a>
+              <div className="project-links">
+                <a className="project-link" href={project.link} target="_blank" rel="noopener noreferrer">{project.linkLabel} <ArrowRight size={15} /></a>
+                {project.liveLink && project.liveLink !== project.link && (
+                  <a className="project-link" href={project.liveLink} target="_blank" rel="noopener noreferrer">Live app <ArrowRight size={15} /></a>
+                )}
+                {project.repositoryLink && project.repositoryLink !== project.link && (
+                  <a className="project-link" href={project.repositoryLink} target="_blank" rel="noopener noreferrer">Source code <ArrowRight size={15} /></a>
+                )}
+              </div>
             </motion.article>
           ))}
         </motion.div>

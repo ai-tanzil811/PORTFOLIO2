@@ -130,6 +130,7 @@ button { font: inherit; }
 .tech-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:auto; padding-top:18px; }
 .tech-row span { border:1px solid var(--border); border-radius:7px; padding:5px 7px; color:var(--muted); font-family:"JetBrains Mono", monospace; font-size:9px; }
 .project-link { display:flex; align-items:center; gap:6px; width:max-content; margin-top:18px; color:var(--cyan); font-size:12px; font-weight:700; }
+.project-links { display:flex; align-items:center; flex-wrap:wrap; gap:16px; }
 
 .skills-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
 .skill-card { min-height:290px; padding:22px; }
