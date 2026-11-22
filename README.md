@@ -123,16 +123,6 @@ GitHub Pages must be configured to deploy using GitHub Actions.
 
 This repository also includes [wrangler.jsonc](./wrangler.jsonc) for Cloudflare Workers Builds:
 
-```jsonc
-{
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "portfolio2",
-  "compatibility_date": "2026-11-22",
-  "assets": {
-    "directory": "./out"
-  }
-}
-```
 
 This configuration tells Wrangler to serve the existing static export in `out/`. It does not use a Worker script or OpenNext.
 
